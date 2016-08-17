@@ -1,0 +1,27 @@
+Docker Hub search
+
+https://github.com/sequenceiq/hadoop-docker
+https://github.com/sequenceiq/docker-hadoop-ubuntu
+https://github.com/Ingensi/docker-hadoop-cdh-pseudo
+https://github.com/ruo91/docker-hadoop
+https://github.com/chali/hadoop-cdh-pseudo-docker
+https://bitbucket.org/uhopper/hadoop-docker
+https://github.com/kiwenlau/hadoop-cluster-docker
+https://github.com/pcting/docker-recipes
+https://github.com/aglahe/dsra-dcos
+https://github.com/Ingensi/docker-hadoop-cdh-base
+https://github.com/labianchin/hadoop-docker
+https://github.com/bigdatafoundation/docker-hadoop
+https://github.com/richhaase/cdh5-hadoop
+https://github.com/bioshrek/hadoop-docker
+
+
+Kubernetes
+
+https://github.com/hortonworks/kubernetes-yarn
+https://github.com/javsalgar/hadoop-cluster-kubernetes
+https://github.com/kubernetes/kubernetes/issues/18096
+
+Fedora Cloud SIG
+
+https://github.com/fedora-cloud/Fedora-Dockerfiles/tree/master/hadoop
