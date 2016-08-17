@@ -8,3 +8,7 @@ https://github.com/yourtion/docker-flume
 https://github.com/lokkju/docker-flume-hdfs
 https://github.com/supermy/docker-myflume
 https://github.com/cogniteev/docker-flume
+
+Kubernetes:
+
+https://github.com/k8sp/bigdata/tree/master/flume
