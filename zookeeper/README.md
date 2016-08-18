@@ -51,10 +51,37 @@ Created /myfolder
 [zk: localhost:2181(CONNECTED) 2] ls /
 [zookeeper, myfolder]
 [zk: localhost:2181(CONNECTED) 3] quit
+$ bin/zkServer.sh stop
 
 ``````
+So ZooKeeper allows distributed processes to coordinate with each other through
+a shared hierarchal namespace which is organized similarly to a standard file
+system. The name space consists of data registers - called znodes, in ZooKeeper
+parlance - and these are similar to files and directories.
 
+#### Simple session with Zookeeper in quorum mode:
 
+We can run multiple servers even if we only have a single machine. We just
+needo to set up a more sophisticated configuration, rather than the default.
+
+In order for servers to contact each other, the need some contact information.
+To accomplish this, we are going to use the following configuration file:
+
+``````
+$ cat conf/zoo.cfg
+[...]
+server.1=127.0.0.1:2222:2223
+server.2=127.0.0.1:3333:3334
+server.3=127.0.0.1:4444:4445
+``````
+Each server *.n* entry specifies the address and port numbers used by Zookeeper
+server *n*. There are three colon-separated fields for each server *.n* entry,
+the first field is the hostname or IP address of server *n*. The second and
+third fields are TCP port numbers used for quorum communication and leader
+selection. Because we are starting up three server processes on the same
+machine, we need to use different port numbers for each entry. When running
+each server process on its own host, each server entry will use the same port
+numbers.
 
 ## Zookeeper in Containers (Docker)
 [TODO]
