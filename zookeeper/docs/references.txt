@@ -19,4 +19,5 @@ Kubernetes:
 
 http://iocanel.blogspot.com.es/2014/10/zookeeper-on-kubernetes.html
 https://dzone.com/articles/zookeeper-kubernetes
+https://github.com/fabric8io/fabric8-zookeeper-docker
 http://planet.jboss.org/post/zookeeper_on_kubernetes
