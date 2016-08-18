@@ -70,6 +70,7 @@ To accomplish this, we are going to use the following configuration file:
 ``````
 $ cat conf/zoo.cfg
 [...]
+dataDir=/tmp/zookeeper
 server.1=127.0.0.1:2222:2223
 server.2=127.0.0.1:3333:3334
 server.3=127.0.0.1:4444:4445
@@ -82,6 +83,75 @@ selection. Because we are starting up three server processes on the same
 machine, we need to use different port numbers for each entry. When running
 each server process on its own host, each server entry will use the same port
 numbers.
+
+We also need to set up some *data directories*, and this is a key point
+regarding OpenShift Pods. When we start up a server, it needs to know which
+server it is. A server figures out this ID by reading a file named *myid* in
+the *data* directory (it finds the *data* directory using the **dataDir**
+parameter in the configuration file). We can do this from the command line with
+the following commands:
+
+``````
+$ cd /tmp/zookeeper
+$ mkdir -p z{1,2,3}/data
+$ echo 1 > z1/myid
+$ echo 2 > z2/myid
+$ echo 3 > z3/myid
+``````
+We need three configuration files, because we are running in the same host,
+with the following particular changes:
+
+``````
+$ cat conf/z1.conf
+[...]
+dataDir=/tmp/zookeeper/z1
+clientPort=2181
+server.1=127.0.0.1:2222:2223
+server.2=127.0.0.1:3333:3334
+server.3=127.0.0.1:4444:4445 
+$ cat conf/z2.conf
+[...]
+dataDir=/tmp/zookeeper/z2
+clientPort=2182
+server.1=127.0.0.1:2222:2223
+server.2=127.0.0.1:3333:3334
+server.3=127.0.0.1:4444:4445 
+$ cat conf/z3.conf
+[...]
+dataDir=/tmp/zookeeper/z3
+clientPort=2183
+server.1=127.0.0.1:2222:2223
+server.2=127.0.0.1:3333:3334
+server.3=127.0.0.1:4444:4445 
+
+``````
+The complete session:
+
+``````
+$ bin/zkServer.sh start conf/z1.conf 
+Using config: conf/z1.conf
+Starting zookeeper ... STARTED
+$ bin/zkServer.sh start conf/z2.conf 
+Using config: conf/z2.conf
+Starting zookeeper ... STARTED
+$ bin/zkServer.sh start conf/z3.conf 
+Using config: conf/z3.conf
+Starting zookeeper ... STARTED
+$ jps
+8226 Jps
+8137 QuorumPeerMain
+8188 QuorumPeerMain
+7967 QuorumPeerMain
+$ bin/zkCli.sh -server 127.0.0.1:2181,127.0.0.1:2182,127.0.0.1:2183
+[zk: 127.0.0.1:2181,127.0.0.1:2182,127.0.0.1:2183(CONNECTED) 0] quit
+$ bin/zkServer.sh stop conf/z1.conf
+$ bin/zkServer.sh stop conf/z2.conf
+$ bin/zkServer.sh stop conf/z3.conf
+
+``````
+
+With this information we can start to study Zookeeper in containers and
+OpenShift.
 
 ## Zookeeper in Containers (Docker)
 [TODO]
