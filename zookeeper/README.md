@@ -25,5 +25,38 @@ requests.
 
 #### Simple session with Zookeeper in standalone mode:
 
+``````
+$ java -version
+openjdk version "1.8.0_101"
+$ tar xvzf zookeeper-3.4.8.tar.gz 
+$ cd zookeeper-3.4.8/
+$ cp conf/zoo_sample.cfg conf/zoo.cfg
+$ bin/zkServer.sh start
+$  jps
+5193 QuorumPeerMain
+5854 Jps
+``````
+
+The server command makes the Zookeeper server run in the background. We are now
+ready to start a client.
+
+``````
+$ bin/zkCli.sh 
+Connecting to localhost:2181
+[...]
+[zk: localhost:2181(CONNECTED) 0] ls /
+[zookeeper]
+[zk: localhost:2181(CONNECTED) 1] create myfolder ""
+Created /myfolder
+[zk: localhost:2181(CONNECTED) 0] ls /
+[zookeeper, myfolder]
+[zk: localhost:2181(CONNECTED) 0] quit
+
+``````
+
+
+
+
+
 
 
