@@ -48,15 +48,19 @@ Connecting to localhost:2181
 [zookeeper]
 [zk: localhost:2181(CONNECTED) 1] create myfolder ""
 Created /myfolder
-[zk: localhost:2181(CONNECTED) 0] ls /
+[zk: localhost:2181(CONNECTED) 2] ls /
 [zookeeper, myfolder]
-[zk: localhost:2181(CONNECTED) 0] quit
+[zk: localhost:2181(CONNECTED) 3] quit
 
 ``````
 
 
 
+## Zookeeper in Containers (Docker)
+[TODO]
 
 
+## Zookeeper cluster in OpenShift
+[TODO]
 
 
