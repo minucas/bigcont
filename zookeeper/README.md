@@ -147,15 +147,26 @@ $ bin/zkCli.sh -server 127.0.0.1:2181,127.0.0.1:2182,127.0.0.1:2183
 $ bin/zkServer.sh stop conf/z1.conf
 $ bin/zkServer.sh stop conf/z2.conf
 $ bin/zkServer.sh stop conf/z3.conf
-
 ``````
 
 With this information we can start to study Zookeeper in containers and
 OpenShift.
 
 ## Zookeeper in Containers (Docker)
-[TODO]
 
+A simple Docker container running Apache Zookeeper is fairly simple.
+
+``````
+$ docker build -f Dockerfile.single -t bigcontainer/zookeeper .
+$ docker run -d bigcontainer/zookeeper
+$ docker ps
+$ docker inspect drunk_euler | grep IPAddress
+$ bin/zkCli.sh  -server 172.17.0.2:2181
+[zk: 172.17.0.2:2181(CONNECTED) 0] ls /
+[zookeeper]
+[zk: 172.17.0.2:2181(CONNECTED) 1] quit
+
+``````
 
 ## Zookeeper cluster in OpenShift
 [TODO]
