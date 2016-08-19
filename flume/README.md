@@ -35,12 +35,33 @@ external repository like HDFS or to the next agent in the topology.
 Other concepts to take into account in this quick overview are:
 
 - Interceptors
-- Channel selectors
+- Channel Selectors
 - Sink Groups and Sink Processors
 
+**Interceptors** are simple pluggable components that sit between a source and the
+channel(s) it writes to. With Interceptors Flume has the capability to modify
+and drop events in-flight based on some processing it does. Each source can be
+configured to use multiple interceptors, which are called in the order defined
+by the configuration. This is called the *chain-of-responsibility design
+pattern*. Interceptors can be used to drop events based on some criteria, like
+a regex, add new headers to events or remove existing ones, data enrichment,
+etc.
+
+**Channel Selectors** are those component of Flume that determines which channel
+a particular Flume event should go into. For example the event can be written
+to all of the channels or to just one based on some Flume header value.
+
+**Sink Groups and Sink Processors**. In order to remove single points of failure in
+the data processing pipeline, Flume has the ability to send events to different
+sinks using either load balancing or failover. A Sink Group is used to create a
+logical grouping of sinks, the behaviour of this groupping is dictated by the
+Sink Processor, which determines how events are routed.
 
 ### Why is important Apache Flume in a Big Data ecosystem?
 
+Traditionally, Flume has been the recommended system for streaming ingestion by
+Cloudera, and it is a foundational part of architectural patterns for near
+Real-Time Data Processing with Apache Hadoop proposal by Cloudera.
 
 ### Getting started with Flume
 [TODO]
