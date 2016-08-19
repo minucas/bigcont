@@ -22,9 +22,11 @@ Flume agents can be used to move data from one location to another.
 
 Each Flume agent has three components:
 
-- the *source*
-- the *channel*
-- and *the sink*
+> - the *source*
+
+> - the *channel*
+
+> - and *the sink*
     
 A Flume source consumes events delivered to it by an external source.
 When a Flume source receives an event, it stores it into one or more channels.
@@ -34,11 +36,11 @@ external repository like HDFS or to the next agent in the topology.
 
 Other concepts to take into account in this quick overview are:
 
-> Interceptors
+> - Interceptors
 
-> Channel Selectors
+> - Channel Selectors
 
-> Sink Groups and Sink Processors
+> - Sink Groups and Sink Processors
 
 **Interceptors** are simple pluggable components that sit between a source and the
 channel(s) it writes to. With Interceptors Flume has the capability to modify
