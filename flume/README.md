@@ -34,9 +34,9 @@ external repository like HDFS or to the next agent in the topology.
 
 Other concepts to take into account in this quick overview are:
 
-- Interceptors
-- Channel Selectors
-- Sink Groups and Sink Processors
+> Interceptors
+> Channel Selectors
+> Sink Groups and Sink Processors
 
 **Interceptors** are simple pluggable components that sit between a source and the
 channel(s) it writes to. With Interceptors Flume has the capability to modify
