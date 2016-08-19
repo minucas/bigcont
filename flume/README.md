@@ -68,13 +68,41 @@ Cloudera, and it is a foundational part of architectural patterns for near
 Real-Time Data Processing with Apache Hadoop proposal by Cloudera.
 
 ### Getting started with Flume
-[TODO]
+
+``````
+$ wget http://www-eu.apache.org/dist/flume/1.6.0/apache-flume-1.6.0-bin.tar.gz
+$ java -version
+openjdk version "1.8.0_101"
+$ tar xvzf apache-flume-1.6.0-bin.tar.gz
+$ cd apache-flume-1.6.0-bin/
+``````
+We are explore a simple "hello world flume". The configuration file needs to
+define the sources, the channels and the sinks. Sources, channels and sinks are
+defined per agent, in this case called *agent*. So in the following
+configuration file we have defined one agent (called *agent*) that has a source
+named *s1*, a channel named *c1*, and a sink named *k1*.
+
+The *s1* source's type is *netcat*, which simply opens a socket listening for
+events (one line of text per event). It requires two parameters, a bind IP and
+port number. In this example we are using 0.0.0.0 for a *bind* address (the
+java convention to specify listen on any address) and *port 1234*. The source
+configuration also has a parameter called *channels* (plural) that is the name
+of the channel/channels the source will append events to, in this case *c1*. It
+is plural because you can configure a source to write more than one channel.
+
+The channel named *c1* is a *memory* channel with default configuration.
+
+The sink named *k1* is of type *logger*. This is a sink that is mostly used for
+debugging and testing. It will log all events at INFO level using log4j, which
+it receives from the configured channel, in this case *c1*. Here the channel
+keyword is singular because a sink can only fed data from one channel.
+
+Using this configuration, let¡s run the agent and connect to it using the Linux
+*netcat* utility to send an event.
 
 
 ``````
-
 ``````
-
 ## Flume in Containers (Docker)
 [TODO]
 
