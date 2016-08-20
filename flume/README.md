@@ -133,15 +133,19 @@ $ nc localhost 1234
 Hello Flume
 OK
 ``````
-
-
-
-
-
 ## Flume in Containers (Docker)
-[TODO]
+As usual, run a simple java based program within a container is easy:
 
+``````
+$ docker build -f Dockerfile.single -t bigcontainer/flume .
+$ docker run bigcontainer/flume
+$ docker ps
+$ docker inspect prickly_keller | grep IPAddress
 
+$ nc 172.17.0.2 1234
+Hello World
+OK
+``````
 ## Flume data flows in OpenShift
 [TODO]
 
