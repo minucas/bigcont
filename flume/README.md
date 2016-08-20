@@ -100,9 +100,44 @@ keyword is singular because a sink can only fed data from one channel.
 Using this configuration, let¡s run the agent and connect to it using the Linux
 *netcat* utility to send an event.
 
+``````
+$ cat helloworld.conf 
+agent.sources = s1
+agent.channels = c1
+agent.sinks = k1
+
+agent.sources.s1.type = netcat
+agent.sources.s1.channels = c1
+agent.sources.s1.bind = 0.0.0.0
+agent.sources.s1.port = 1234
+
+agent.channels.c1.type = memory
+
+# Each sink's type must be defined
+agent.sinks.k1.type = logger
+
+# Specify the channel the sink should use
+agent.sinks.k1.channel = c1
+``````
+Next, you can start the agent. The *-Dflume.root.logger* property overrides the
+root logger in conf/log4j.properties to use the console appener.
 
 ``````
+$ bin/flume-ng agent -n agent -c conf -f helloworld.conf -Dflume.root.logger=INFO,console
 ``````
+Finally, opening a second terminal, we'll use the netcat command (nc) to send 
+the string "Hello World", and hit RETURN to mark the end of the event.
+
+``````
+$ nc localhost 1234
+Hello Flume
+OK
+``````
+
+
+
+
+
 ## Flume in Containers (Docker)
 [TODO]
 
