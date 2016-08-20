@@ -49,6 +49,7 @@ EXPOSE 1234
 
 WORKDIR /opt/flume 
 
-ENTRYPOINT ["bin/flume-ng"]
-CMD ["agent", "-n" "agent", "-c", "conf", "-f", "hello-world.conf", "-Dflume.root.logger=INFO,console"]
+ENTRYPOINT ["bin/flume-ng", "agent"]
+CMD ["-n", "agent", "-c", "conf", "-f", "hello-world.conf", "-Dflume.root.logger=INFO,console"]
+
 
