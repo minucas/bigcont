@@ -35,6 +35,17 @@ $ sudo systemctl restart docker
 
 ``````
 $ oc cluster up
+   [...]
+   OpenShift server started.
+   The server is accessible via web console at:
+       https://192.168.43.137:8443
+
+   You are logged in as:
+       User:     developer
+       Password: developer
+
+   To login as administrator:
+       oc login -u system:admin
 ``````
 
 5. To stop your cluster, run:
