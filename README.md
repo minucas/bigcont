@@ -7,7 +7,7 @@ I this project we explore the different alternatives to run Big Data workloads
 in OpenShift Origin, the foundations for BDaaS - Big Data as a Service, agile
  development cycle (devops), rapid development, and so forth.
 
-## Testbed environment
+## Rapid Testbed Environment
 
 Rapid artifact testing of this project with the new **oc cluster up** command 
 from v1.3.0-alpha.3 OpenShift Origin version:
@@ -42,3 +42,7 @@ $ oc cluster up
 ``````
 $ oc cluster down
 ``````
+
+## Advanced Testbed Environment
+
+[Advanced testbed notes](testbed/README.md)
