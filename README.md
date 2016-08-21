@@ -9,13 +9,14 @@ in OpenShift Origin, the foundations for BDaaS - Big Data as a Service, agile
 
 ## Testbed environment
 
-Rapid testing of artifacts of this project with new **oc cluster up** from 
-v1.3.0-alpha.3:
+Rapid artifact testing of this project with the new **oc cluster up** command 
+from v1.3.0-alpha.3 OpenShift Origin version:
 
 1. Install Docker with your platform's package manager:
 
 ``````
-Fedora 24: sudo dnf install docker
+(Fedora 24)
+$ sudo dnf install docker
 ``````
 
 2. Configure the Docker daemon with an insecure registry parameter of
@@ -41,7 +42,3 @@ $ oc cluster up
 ``````
 $ oc cluster down
 ``````
-```
-
-
-
