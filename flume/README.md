@@ -137,7 +137,7 @@ OK
 As usual, run a simple java based program within a container is easy:
 
 ``````
-$ docker build -f Dockerfile.single -t bigcontainer/flume .
+$ docker build -f Dockerfile -t bigcontainer/flume .
 $ docker run bigcontainer/flume
 $ docker ps
 $ docker inspect prickly_keller | grep IPAddress
