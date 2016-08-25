@@ -238,5 +238,4 @@ flume-service-1-xkspu   1/1       Running     0          55s
 ``````
 An the always useful web console screenshot:
 
-[[ https://github.com/bigcontainer/bigcont/blob/flume-service/flume/img/screenshot-flume-cluster.png | alt=flume ]]
-
+![Web Console Flume](https://github.com/bigcontainer/bigcont/blob/flume-service/flume/img/screenshot-flume-cluster.png)
