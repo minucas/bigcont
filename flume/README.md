@@ -238,7 +238,6 @@ flume-service-1-xkspu   1/1       Running     0          55s
 ``````
 An the always useful web console screenshot:
 
-[[https://github.com/username/repository/blob/master/img/octocat.png|alt=octocat]]
-
+[[https://github.com/bigcontainer/bigcont/blob/flume-service/flume/img/screenshot-flume-cluster.png|alt=flume]]
 
 
