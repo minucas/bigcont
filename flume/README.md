@@ -98,8 +98,8 @@ debugging and testing. It will log all events at INFO level using log4j, which
 it receives from the configured channel, in this case *c1*. Here the channel
 keyword is singular because a sink can only fed data from one channel.
 
-Using this configuration, let's run the agent and connect to it using the Linux
-some HTTP client utility to send an event.
+Using this configuration, let's run the agent and connect to it using the some
+regular HTTP client utility to send an event.
 
 ``````
 $ cat helloworld.conf 
