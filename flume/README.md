@@ -152,7 +152,27 @@ $ curl -X POST \
 ``````
 ## Flume data flow in OpenShift
 
+The simplest way to bring our containerized Apache Flume to OpenShift is by
+means of creating an OpenShift Application (*oc new-app*). This method
+delegates to OpenShift the creaion of necessary objects for run our contaniner.
 
+Particulary we are going to creating an application using the variant 
+"Remote Git Source Build Strategy". OpenShift will detect a Build Strategy, in
+this case will be a Docker build strategy, because we have a *Dockerfile* in
+the top folder of our git repository.
+
+The automatically generated OpenShift objects are:
+
+1. An *Image Stream* that will track this image creation.
+2. A *Build Config* strategy is created.
+2. The created image is deployed with a *Deployment Config*.
+3. A *Service* is created for internal load balancing.
+4. A *Replication Controller* is created for pod scaling.
+
+The only manual step with have to do is to expose a *Route* to the exterior.
+By default, the new-app command does not expose the Service it creates to the
+outside world. If you want to expose a Service as an HTTP endpoint you to to do
+it manually.
 ``````
 $ oc cluster up
 $ oc login -u system:admin
@@ -167,8 +187,9 @@ $ oc new-app https://github.com/bigcontainer/bigcont \
 	--name=flume-service
 $ oc logs bc/flume-service -f
 $ oc expose --hostname=flume.192.168.1.44.xip.io svc flume-service
-$ oc logs pod flume-service-1-7mmu0 -f
 
+
+$ oc logs pod flume-service-1-7mmu0 -f
 $ curl -X POST \
     -H 'Content-Type: application/json; charset=UTF-8' \
     -d '[{"headers":{"header.key":"header.value"}, "body":"hello world"}]' \  
