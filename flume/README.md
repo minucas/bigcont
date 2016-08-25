@@ -82,13 +82,14 @@ defined per agent, in this case called *agent*. So in the following
 configuration file we have defined one agent (called *agent*) that has a source
 named *s1*, a channel named *c1*, and a sink named *k1*.
 
-The *s1* source's type is *netcat*, which simply opens a socket listening for
-events (one line of text per event). It requires two parameters, a bind IP and
-port number. In this example we are using 0.0.0.0 for a *bind* address (the
-java convention to specify listen on any address) and *port 1234*. The source
-configuration also has a parameter called *channels* (plural) that is the name
-of the channel/channels the source will append events to, in this case *c1*. It
-is plural because you can configure a source to write more than one channel.
+The *s1* source's type is *http*, source which accepts Flume Events by HTTP
+POST and GET. GET should be used for experimentation only. It requires two 
+parameters, a bind IP and port number. In this example we are using 0.0.0.0 for
+a *bind* address (the java convention to specify listen on any address) and 
+*port 1234*. The source configuration also has a parameter called *channels* 
+(plural) that is the name of the channel/channels the source will append events
+to, in this case *c1*. It is plural because you can configure a source to write
+more than one channel.
 
 The channel named *c1* is a *memory* channel with default configuration.
 
@@ -97,8 +98,8 @@ debugging and testing. It will log all events at INFO level using log4j, which
 it receives from the configured channel, in this case *c1*. Here the channel
 keyword is singular because a sink can only fed data from one channel.
 
-Using this configuration, let¡s run the agent and connect to it using the Linux
-*netcat* utility to send an event.
+Using this configuration, let's run the agent and connect to it using the Linux
+some HTTP client utility to send an event.
 
 ``````
 $ cat helloworld.conf 
@@ -106,7 +107,8 @@ agent.sources = s1
 agent.channels = c1
 agent.sinks = k1
 
-agent.sources.s1.type = netcat
+agent.sources.s1.type = http
+agent.sources.s1.handler = org.apache.flume.source.http.JSONHandler
 agent.sources.s1.channels = c1
 agent.sources.s1.bind = 0.0.0.0
 agent.sources.s1.port = 1234
@@ -123,15 +125,16 @@ Next, you can start the agent. The *-Dflume.root.logger* property overrides the
 root logger in conf/log4j.properties to use the console appener.
 
 ``````
-$ bin/flume-ng agent -n agent -c conf -f helloworld.conf -Dflume.root.logger=INFO,console
+$ bin/flume-ng agent -n agent -c conf -f hello-world.conf -Dflume.root.logger=INFO,console
 ``````
-Finally, opening a second terminal, we'll use the netcat command (nc) to send 
-the string "Hello World", and hit RETURN to mark the end of the event.
+Finally, opening a second terminal, we'll use the *curl* command to send a
+JSON file with "Hello World". 
 
 ``````
-$ nc localhost 1234
-Hello Flume
-OK
+$ curl -X POST \
+    -H 'Content-Type: application/json; charset=UTF-8' \
+    -d '[{"headers":{"header.key":"header.value"}, "body":"hello world"}]' \  
+    http://localhost:1234 
 ``````
 ## Flume in Containers (Docker)
 As usual, run a simple java based program within a container is easy:
@@ -142,11 +145,34 @@ $ docker run bigcontainer/flume
 $ docker ps
 $ docker inspect prickly_keller | grep IPAddress
 
-$ nc 172.17.0.2 1234
-Hello World
-OK
+$ curl -X POST \
+    -H 'Content-Type: application/json; charset=UTF-8' \
+    -d '[{"headers":{"header.key":"header.value"}, "body":"hello world"}]' \  
+    172.17.0.2:1234 
 ``````
-## Flume data flows in OpenShift
-[TODO]
+## Flume data flow in OpenShift
+
+
+``````
+$ oc cluster up
+$ oc login -u system:admin
+$ oc get pod --all-namespaces
+$ oc project default
+$ oc describe pod router-1-kb10r  | grep  IP
+IP:        192.168.1.44
+
+$ oc login -u developer
+$ oc new-app https://github.com/bigcontainer/bigcont \
+	--context-dir=flume \
+	--name=flume-service
+$ oc logs bc/flume-service -f
+$ oc expose --hostname=flume.192.168.1.44.xip.io svc flume-service
+$ oc logs pod flume-service-1-7mmu0 -f
+
+$ curl -X POST \
+    -H 'Content-Type: application/json; charset=UTF-8' \
+    -d '[{"headers":{"header.key":"header.value"}, "body":"hello world"}]' \  
+	flume.192.168.1.44.xip.io
+``````
 
 
