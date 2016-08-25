@@ -195,5 +195,50 @@ $ curl -X POST \
     -d '[{"headers":{"header.key":"header.value"}, "body":"hello world"}]' \  
 	flume.192.168.1.44.xip.io
 ``````
+To take a look to the created objects:
+
+``````
+$ oc status -v
+In project My Project (myproject) on server https://192.168.1.44:8443
+
+svc/flume-service - 172.30.99.49:1234
+  dc/flume-service deploys istag/flume-service:latest <-
+    bc/flume-service docker builds https://github.com/bigcontainer/bigcont#flume-service on istag/centos:7 
+    deployment #1 deployed 44 seconds ago - 1 pod
+
+$ oc get is
+NAME            DOCKER REPO                                  TAGS      UPDATED
+centos          172.30.56.108:5000/myproject/centos          7         3 minutes ago
+flume-service   172.30.56.108:5000/myproject/flume-service   latest    2 minutes ago
+$ oc get bc
+NAME            TYPE      FROM                LATEST
+flume-service   Docker    Git@flume-service   1
+$ oc get dc
+NAME            REVISION   DESIRED   CURRENT   TRIGGERED BY
+flume-service   1          1         1         config,image(flume-service:latest)
+$ oc get svc
+NAME            CLUSTER-IP     EXTERNAL-IP   PORT(S)    AGE
+flume-service   172.30.99.49   <none>        1234/TCP   4m
+$ oc get rc
+NAME              DESIRED   CURRENT   AGE
+flume-service-1   1         1         2m
+$ oc get route
+NAME            HOST/PORT                   PATH      SERVICE                  TERMINATION   LABELS
+flume-service   flume.192.168.1.44.xip.io             flume-service:1234-tcp                 app=flume-service
+``````
+We can scale our Apache Flume ingestion cluster with:
+
+``````
+$ oc scale --replicas=3 rc flume-service-1
+$ oc get pod
+NAME                    READY     STATUS      RESTARTS   AGE
+flume-service-1-23k9x   1/1       Running     0          7m
+flume-service-1-5n71o   1/1       Running     0          55s
+flume-service-1-xkspu   1/1       Running     0          55s
+``````
+An the always useful web console screenshot:
+
+[[https://github.com/username/repository/blob/master/img/octocat.png|alt=octocat]]
+
 
 
