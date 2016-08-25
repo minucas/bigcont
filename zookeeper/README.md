@@ -154,7 +154,7 @@ OpenShift.
 
 ## Zookeeper in Containers (Docker)
 
-A simple Docker container running Apache Zookeeper is fairly simple.
+A simple Docker container running Apache Zookeeper is quite simple.
 
 ``````
 $ docker build -f Dockerfile.single -t bigcontainer/zookeeper .
@@ -167,6 +167,11 @@ $ bin/zkCli.sh  -server 172.17.0.2:2181
 [zk: 172.17.0.2:2181(CONNECTED) 1] quit
 
 ``````
+However only one Zookeeper server is not useful at all. We have to create a
+Zookeeper Essemble with a least three server to fulfil a quorum. Here is where
+the task is not trivial: all of the servers need to be aware of each other. We
+have to create multiple containers from the same image and have them point to
+each other.
 
 ## Zookeeper cluster in OpenShift
 [TODO]
