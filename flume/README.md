@@ -223,8 +223,8 @@ $ oc get rc
 NAME              DESIRED   CURRENT   AGE
 flume-service-1   1         1         2m
 $ oc get route
-NAME            HOST/PORT                   PATH      SERVICE                  TERMINATION   LABELS
-flume-service   flume.192.168.1.44.xip.io             flume-service:1234-tcp                 app=flume-service
+NAME            HOST/PORT                   PATH      SERVICE                TERMINATION   LABELS
+flume-service   flume.192.168.1.44.xip.io             flume-service:1234-tcp             app=flume-service
 ``````
 We can scale our Apache Flume ingestion cluster with:
 
@@ -239,3 +239,10 @@ flume-service-1-xkspu   1/1       Running     0          55s
 An the always useful web console screenshot:
 
 ![Web Console Flume](https://github.com/bigcontainer/bigcont/blob/flume-service/flume/img/screenshot-flume-cluster.png)
+
+For more advanced configurations: 
+
+- configuration data while keeping containers agnostic (ConfigMap objects)
+- multi-hops flows, and so on
+
+Take a look to the Flume template folder.
