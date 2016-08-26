@@ -53,6 +53,13 @@ $ oc cluster up
 ``````
 $ oc cluster down
 ``````
+Note: By default, etcd data will not be preserved between container restarts.
+If you wish to preserve your data, specify a value for --host-data-dir and the
+--use-existing-config flag.
+
+
+Default routes are setup using xip.io and the host ip of your cluster. To use a
+different routing suffix, use the --routing-suffix flag.
 
 ## Advanced Testbed Environment
 

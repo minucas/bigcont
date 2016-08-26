@@ -189,7 +189,7 @@ $ oc logs bc/flume-service -f
 $ oc expose --hostname=flume.192.168.1.44.xip.io svc flume-service
 
 
-$ oc logs pod flume-service-1-7mmu0 -f
+$ oc logs flume-service-1-7mmu0 -f
 $ curl -X POST \
     -H 'Content-Type: application/json; charset=UTF-8' \
     -d '[{"headers":{"header.key":"header.value"}, "body":"hello world"}]' \  
