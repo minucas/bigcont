@@ -13,12 +13,10 @@ Rapid artifact testing of this project with the new **oc cluster up** command
 from v1.3.0-alpha.3 OpenShift Origin version:
 
 1. Install Docker with your platform's package manager:
-
 ``````
 (Fedora 24)
 $ sudo dnf install docker
 ``````
-
 2. Configure the Docker daemon with an insecure registry parameter of
 `172.30.0.0/16` In RHEL and Fedora, edit the `/etc/sysconfig/docker` file and 
 add or uncomment the following line:
@@ -32,7 +30,6 @@ $ sudo systemctl restart docker
 
 4. Open a terminal with a user that has permission to run Docker commands and
    run:
-
 ``````
 $ oc cluster up
    [...]
