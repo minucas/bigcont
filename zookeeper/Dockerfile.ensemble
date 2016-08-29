@@ -43,10 +43,10 @@ RUN \
   mv /opt/zookeeper-${ZK_VERSION} /opt/zookeeper
 
 # Configure
-RUN \
-  cp /opt/zookeeper/conf/zoo_sample.cfg /opt/zookeeper/conf/zoo.cfg && \
+COPY \
+  zoo-ensemble.cfg /opt/zookeeper/conf/zoo.cfg && \
   mkdir -p /tmp/zookeeper
-
+  
 EXPOSE 2181 2888 3888    
   
 ENTRYPOINT ["/opt/zookeeper/bin/zkServer.sh"]

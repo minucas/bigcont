@@ -165,20 +165,23 @@ $ bin/zkCli.sh  -server 172.17.0.2:2181
 [zk: 172.17.0.2:2181(CONNECTED) 0] ls /
 [zookeeper]
 [zk: 172.17.0.2:2181(CONNECTED) 1] quit
-
 ``````
 However only one Zookeeper server is not useful at all. We have to create a
-Zookeeper Essemble with a least three server to fulfil a quorum. Here is where
+Zookeeper Essemble with at least three server to fulfil a quorum. Here is where
 the task is not trivial: all of the servers need to be aware of each other. We
 have to create multiple containers from the same image and have them point to
 each other.
 
-docker network create backend
+With User-Defined Networks (Docker 1.9.0 +) we can connect containers placing
+them in the same network or sub-network.
+``````
+docker network create mynet
 docker network ls
-docker run --net=backend --name=server1 -d bigcontainer/zookeeper 
-docker run --net=backend --name=server2 -d bigcontainer/zookeeper 
-docker exec -it server2 /bin/bash
-docker run --net=backend --name=server3 -d bigcontainer/zookeeper 
+docker run -e "MYID=1" --net=mynet --name=server1 -d bigcontainer/zookeeper 
+docker run -e "MYID=2" --net=mynet --name=server2 -d bigcontainer/zookeeper 
+docker run -e "MYID=3" --net=mynet --name=server3 -d bigcontainer/zookeeper 
+docker exec -it server1 /bin/bash
+``````
 
 ## Zookeeper cluster in OpenShift
 [TODO]
