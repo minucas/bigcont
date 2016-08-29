@@ -175,12 +175,32 @@ each other.
 With User-Defined Networks (Docker 1.9.0 +) we can connect containers placing
 them in the same network or sub-network.
 ``````
-docker network create mynet
-docker network ls
-docker run -e "MYID=1" --net=mynet --name=server1 -d bigcontainer/zookeeper 
-docker run -e "MYID=2" --net=mynet --name=server2 -d bigcontainer/zookeeper 
-docker run -e "MYID=3" --net=mynet --name=server3 -d bigcontainer/zookeeper 
-docker exec -it server1 /bin/bash
+$ docker build -f Dockerfile.ensemble -t bigcontainer/zookeeper .
+$ docker network create mynet
+$ docker network ls
+$ docker run -e "MYID=1" --net=mynet --name=server1 -d bigcontainer/zookeeper 
+$ docker run -e "MYID=2" --net=mynet --name=server2 -d bigcontainer/zookeeper 
+$ docker run -e "MYID=3" --net=mynet --name=server3 -d bigcontainer/zookeeper 
+$ docker exec -it server1 /bin/bash
+[89dd8c7418c9 /]# /opt/zookeeper/bin/zkCli.sh -server server1:2181,server2:2181,server3:2181
+[zk: server1:2181,server2:2181,server3:2181(CONNECTED) 0] create /zk_test my_data
+Created /zk_test
+[zk: server1:2181,server2:2181,server3:2181(CONNECTED) 1] ls /
+[zookeeper, zk_test]
+[zk: server1:2181,server2:2181,server3:2181(CONNECTED) 2] get /zk_test
+my_data
+cZxid = 0x100000002
+ctime = Mon Aug 29 12:27:10 UTC 2016
+mZxid = 0x100000002
+mtime = Mon Aug 29 12:27:10 UTC 2016
+pZxid = 0x100000002
+cversion = 0
+dataVersion = 0
+aclVersion = 0
+ephemeralOwner = 0x0
+dataLength = 7
+numChildren = 0
+[zk: server1:2181,server2:2181,server3:2181(CONNECTED) 3] quit
 ``````
 
 ## Zookeeper cluster in OpenShift

@@ -40,14 +40,16 @@ RUN \
 # Install 
 RUN \
   tar xvzf zookeeper-${ZK_VERSION}.tar.gz -C /opt && \
-  mv /opt/zookeeper-${ZK_VERSION} /opt/zookeeper
+  mv /opt/zookeeper-${ZK_VERSION} /opt/zookeeper && \
+  mkdir -p /tmp/zookeeper
 
 # Configure
 COPY \
-  zoo-ensemble.cfg /opt/zookeeper/conf/zoo.cfg && \
-  mkdir -p /tmp/zookeeper
+  zoo-ensemble.cfg /opt/zookeeper/conf/zoo.cfg 
   
+COPY \
+  docker-entrypoint.sh /opt/zookeeper/
+
 EXPOSE 2181 2888 3888    
   
-ENTRYPOINT ["/opt/zookeeper/bin/zkServer.sh"]
-CMD ["start-foreground"] 
+ENTRYPOINT ["/opt/zookeeper/docker-entrypoint.sh"]
