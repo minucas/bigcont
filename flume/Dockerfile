@@ -1,5 +1,5 @@
 # Apache Flume Dockerfile
-# https://github.com/bigcontainer/bigcont
+# https://github.com/bigcontainer/bigcont/flume
 FROM centos:7
 
 ARG FL_VERSION=1.6.0
@@ -7,7 +7,7 @@ ARG FL_MIRROR=http://www-eu.apache.org/dist/
 
 LABEL name="flume" flume-version=$FL_VERSION
 
-ENV JAVA_VERSION=1.8.0
+ENV JAVA_VERSION=1.8.0 JAVA_HOME=/usr/lib/jvm/jre
 
 # Java installation
 RUN \
