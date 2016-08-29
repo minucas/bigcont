@@ -173,12 +173,12 @@ the task is not trivial: all of the servers need to be aware of each other. We
 have to create multiple containers from the same image and have them point to
 each other.
 
- 1139  docker network create backend
- 1140  docker network ls
- 1141  docker run --net=backend --name=server1 -d bigcontainer/zookeeper 
- 1142  docker run --net=backend --name=server2 -d bigcontainer/zookeeper 
- 1143  docker exec -it server2 /bin/bash
- 1144  docker run --net=backend --name=server3 -d bigcontainer/zookeeper 
+docker network create backend
+docker network ls
+docker run --net=backend --name=server1 -d bigcontainer/zookeeper 
+docker run --net=backend --name=server2 -d bigcontainer/zookeeper 
+docker exec -it server2 /bin/bash
+docker run --net=backend --name=server3 -d bigcontainer/zookeeper 
 
 ## Zookeeper cluster in OpenShift
 [TODO]
