@@ -204,6 +204,17 @@ numChildren = 0
 ``````
 
 ## Zookeeper cluster in OpenShift
-[TODO]
+``````
+$ oc login -u system:admin
+$ REG=$(oc --namespace=default get svc docker-registry --template={{.spec.portalIP}}):5000
+$ oc adm policy add-role-to-user system:registry developer
+$ oc adm policy add-role-to-user system:image-builder developer
 
+$ oc login -u developer
+$ docker login -u $(oc whoami) -p $(oc whoami -t) -e none $REG
+
+$ docker build -t bigcontainer/zookeeper .
+$ docker tag bigcontainer/zookeeper $REG/myproject/zookeeper
+$ docker push $REG/myproject/zookeeper
+``````
 

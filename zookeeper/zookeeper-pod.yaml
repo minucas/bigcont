@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: zookeeper-pod-1
+  labels:                                
+    name: zookeeper-ensemble
+spec:
+  containers:                            
+    - env:                                 
+      - name: MYID
+        value: "1"
+      name: zookeeper-pod
+      image: "172.30.109.42:5000/myproject/zookeeper"
+
