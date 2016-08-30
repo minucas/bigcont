@@ -1,0 +1,36 @@
+#
+# Widestage: Lightweight Business Intelligence tool
+#
+# https://github.com/bigcontainer/bigcont
+#
+
+# Pull base image
+FROM centos:7
+
+#FROM node:6.2.2
+
+# Build-time vars
+ARG WIDESTAGE_VERSION=1.6.0
+
+RUN git config --global url."https://".insteadOf git://
+RUN npm install -g bower
+
+# Widestage installation
+RUN \
+  yum install npm -y
+
+WORKDIR /opt/widestage/
+
+COPY package.json /opt/widestage/
+
+COPY bower.json /opt/widestage/
+
+RUN npm install
+
+RUN bower install --allow-root --force-latest
+
+COPY . /opt/widestage/
+
+ENTRYPOINT ["node"]
+
+CMD ["server.js"]
