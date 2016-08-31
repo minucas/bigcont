@@ -33,7 +33,7 @@ RUN \
   mv /opt/apache-flume-${FL_VERSION}-bin /opt/flume && \
   rm -f /tmp/apache-flume-*
 
-ADD hello-world.conf /opt/flume/hello-world.conf
+ADD ../files/hello-world.conf /opt/flume/hello-world.conf
 
 EXPOSE 1234
 
