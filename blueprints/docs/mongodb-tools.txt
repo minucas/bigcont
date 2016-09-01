@@ -1,0 +1,15 @@
+https://anmolkoul.wordpress.com/2015/06/05/interactive-data-visualization-using-d3-js-dc-js-nodejs-and-mongodb/
+http://adilmoujahid.com/posts/2015/01/interactive-data-visualization-d3-dc-python-mongodb/
+https://docs.mongodb.com/ecosystem/tools/administration-interfaces/
+https://blog.chartio.com/blog/mongodb-with-chartio
+http://redash.io/
+
+
+
+Generic
+
+https://opensource.com/life/15/6/eight-open-source-data-visualization-tools
+http://opendata-tools.org/en/visualization/
+https://www.jaspersoft.com/
+https://d3js.org/
+
