@@ -1,47 +1,36 @@
-#
 # Apache Flume Dockerfile
-#
-# https://github.com/bigcontainer/bigcont
-#
-
-# Pull base image
+# https://github.com/bigcontainer/bigcont/flume
 FROM centos:7
 
-# Build-time vars
 ARG FL_VERSION=1.6.0
 ARG FL_MIRROR=http://www-eu.apache.org/dist/
 
-# Custom metadata
 LABEL name="flume" flume-version=$FL_VERSION
 
-# Define commonly used JAVA_HOME variable
-ENV JAVA_VERSION 1.8.0 
-ENV JAVA_HOME /usr/lib/jvm/jre
+ENV JAVA_VERSION=1.8.0 JAVA_HOME=/usr/lib/jvm/jre
 
 # Java installation
 RUN \
   yum update -y && \
-  yum install -y java-${JAVA_VERSION}-openjdk wget && \
-  yum clean all
-
-# Zookeeper download
-RUN \
-  wget -q ${FL_MIRROR}/flume/${FL_VERSION}/apache-flume-${FL_VERSION}-bin.tar.gz && \ 
-  wget -q https://www.apache.org/dist/flume/KEYS && \ 
-  wget -q https://www.apache.org/dist/flume/${FL_VERSION}/apache-flume-${FL_VERSION}-bin.tar.gz.asc && \
-  wget -q https://www.apache.org/dist/flume/${FL_VERSION}/apache-flume-${FL_VERSION}-bin.tar.gz.md5
-
+  yum install -y java-${JAVA_VERSION}-openjdk && \
+  yum clean all && \
+# Flume download
+  curl -L ${FL_MIRROR}/flume/${FL_VERSION}/apache-flume-${FL_VERSION}-bin.tar.gz -o /tmp/apache-flume-${FL_VERSION}-bin.tar.gz && \ 
+  curl -L https://www.apache.org/dist/flume/KEYS -o /tmp/KEYS && \ 
+  curl -L https://www.apache.org/dist/flume/${FL_VERSION}/apache-flume-${FL_VERSION}-bin.tar.gz.asc -o /tmp/apache-flume-${FL_VERSION}-bin.tar.gz.asc && \
+  curl -L https://www.apache.org/dist/flume/${FL_VERSION}/apache-flume-${FL_VERSION}-bin.tar.gz.md5 -o /tmp/apache-flume-${FL_VERSION}-bin.tar.gz.md5 && \
 # Verify download
-#RUN \
-#  md5sum -c apache-flume-${FL_VERSION}-bin.tar.gz.md5 && \
-#  gpg --import KEYS && \
-#  gpg --verify apache-flume-${FL_VERSION}-bin.tar.gz.asc
-
+# Fix wrong MD5 file...
+  sed -i "s/$/  apache-flume-${FL_VERSION}-bin.tar.gz/" /tmp/apache-flume-${FL_VERSION}-bin.tar.gz.md5 && \
+  cd /tmp && \
+  md5sum -c --quiet apache-flume-${FL_VERSION}-bin.tar.gz.md5 && \
+  cd - && \
+  gpg --import /tmp/KEYS && \
+  gpg --verify /tmp/apache-flume-${FL_VERSION}-bin.tar.gz.asc && \
 # Install 
-RUN \
-  tar xvzf apache-flume-${FL_VERSION}-bin.tar.gz -C /opt && \
-  tar xvzf apache-flume-${FL_VERSION}-bin.tar.gz -C /opt && \
-  mv /opt/apache-flume-${FL_VERSION}-bin /opt/flume
+  tar xvzf /tmp/apache-flume-${FL_VERSION}-bin.tar.gz -C /opt && \
+  mv /opt/apache-flume-${FL_VERSION}-bin /opt/flume && \
+  rm -f /tmp/apache-flume-*
 
 ADD hello-world.conf /opt/flume/hello-world.conf
 
@@ -51,5 +40,3 @@ WORKDIR /opt/flume
 
 ENTRYPOINT ["bin/flume-ng", "agent"]
 CMD ["-n", "agent", "-c", "conf", "-f", "hello-world.conf", "-Dflume.root.logger=INFO,console"]
-
-

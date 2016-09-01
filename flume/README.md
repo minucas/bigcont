@@ -140,15 +140,13 @@ $ curl -X POST \
 As usual, run a simple java based program within a container is easy:
 
 ``````
-$ docker build -f Dockerfile -t bigcontainer/flume .
-$ docker run bigcontainer/flume
-$ docker ps
-$ docker inspect prickly_keller | grep IPAddress
+$ docker run --name myflume bigcontainer/flume
+$ export FLUMEIP=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' myflume)
 
 $ curl -X POST \
     -H 'Content-Type: application/json; charset=UTF-8' \
     -d '[{"headers":{"header.key":"header.value"}, "body":"hello world"}]' \  
-    172.17.0.2:1234 
+    $FLUMEIP:1234 
 ``````
 ## Flume data flow in OpenShift
 
@@ -189,7 +187,7 @@ $ oc logs bc/flume-service -f
 $ oc expose --hostname=flume.192.168.1.44.xip.io svc flume-service
 
 
-$ oc logs pod flume-service-1-7mmu0 -f
+$ oc logs flume-service-1-7mmu0 -f
 $ curl -X POST \
     -H 'Content-Type: application/json; charset=UTF-8' \
     -d '[{"headers":{"header.key":"header.value"}, "body":"hello world"}]' \  
