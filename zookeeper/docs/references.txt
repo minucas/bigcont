@@ -17,6 +17,5 @@ https://github.com/maaydin/zookeeper-docker
 
 Kubernetes:
 
-http://iocanel.blogspot.com.es/2014/10/zookeeper-on-kubernetes.html
 http://planet.jboss.org/post/zookeeper_on_kubernetes
 https://github.com/fabric8io/fabric8-zookeeper-docker
