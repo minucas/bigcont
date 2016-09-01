@@ -35,6 +35,7 @@ https://github.com/charly37/docker-kafka
 
 Kubernetes:
 
+https://github.com/jim-minter/kafkanetes
 https://github.com/k8sp/bigdata/tree/master/kafka
 https://github.com/kubernetes/kubernetes/issues/5017
 https://github.com/eliaslevy/docker-zookeeper
