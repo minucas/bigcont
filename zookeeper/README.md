@@ -204,6 +204,11 @@ numChildren = 0
 ``````
 
 ## Zookeeper cluster in OpenShift
+We are creating raw pods for this example, probalby it not the best practice,
+as well pods only take full docker pull specs for the image path. they do not
+understand imagestreams, so there is no "correct" way to reference an
+imagestream from a pod, so we have to referencence the registry service IP. 
+Anyway this is only for understanding the pains behind this approach.
 ``````
 $ oc login -u system:admin
 $ REG=$(oc --namespace=default get svc docker-registry --template={{.spec.portalIP}}):5000
