@@ -222,7 +222,8 @@ $ docker build -t bigcontainer/zookeeper .
 $ docker tag bigcontainer/zookeeper $REG/myproject/zookeeper
 $ docker push $REG/myproject/zookeeper
 
-$ create-services.sh 
+$ export REG
+$ sh create-services.sh 
 $ sh create-pods.sh 
 
 ``````
