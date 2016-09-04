@@ -158,9 +158,9 @@ A simple Docker container running Apache Zookeeper is quite simple.
 
 ``````
 $ docker build -f Dockerfile.single -t bigcontainer/zookeeper .
-$ docker run -d bigcontainer/zookeeper
+$ docker run --name=zookeeper -d bigcontainer/zookeeper
 $ docker ps
-$ docker inspect drunk_euler | grep IPAddress
+$ docker inspect zookeeper | grep IPAddress
 $ bin/zkCli.sh  -server 172.17.0.2:2181
 [zk: 172.17.0.2:2181(CONNECTED) 0] ls /
 [zookeeper]
@@ -221,5 +221,9 @@ $ docker login -u $(oc whoami) -p $(oc whoami -t) -e none $REG
 $ docker build -t bigcontainer/zookeeper .
 $ docker tag bigcontainer/zookeeper $REG/myproject/zookeeper
 $ docker push $REG/myproject/zookeeper
+
+$ create-services.sh 
+$ sh create-pods.sh 
+
 ``````
 

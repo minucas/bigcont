@@ -14,5 +14,9 @@ spec:
         value: "$i"
       name: zookeeper-pod-$i
       image: "${REG}/myproject/zookeeper"
+      ports:
+      - containerPort: 2888
+      - containerPort: 2181
+      - containerPort: 3888
 !
 done
