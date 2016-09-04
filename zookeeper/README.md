@@ -209,6 +209,13 @@ as well pods only take full docker pull specs for the image path. they do not
 understand imagestreams, so there is no "correct" way to reference an
 imagestream from a pod, so we have to referencence the registry service IP. 
 Anyway this is only for understanding the pains behind this approach.
+
+An important thing to note is that ports 2181, 2888, and 3888 should be open
+across all three machines. In this example, config, port 2181 is used by
+ZooKeeper clients to connect to the ZooKeeper servers, port 2888 is used by
+peer ZooKeeper servers to communicate with each other, and port 3888 is used
+for leader election. You may chose any ports of your liking. It's usually
+recommended that you use the same ports on all of the ZooKeeper servers.
 ``````
 $ oc login -u system:admin
 $ REG=$(oc --namespace=default get svc docker-registry --template={{.spec.portalIP}}):5000
@@ -225,6 +232,5 @@ $ docker push $REG/myproject/zookeeper
 $ export REG
 $ sh create-services.sh 
 $ sh create-pods.sh 
-
 ``````
 

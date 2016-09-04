@@ -43,6 +43,7 @@ RUN \
   mv /opt/zookeeper-${ZK_VERSION} /opt/zookeeper && \
   mkdir -p /tmp/zookeeper && \
   chmod g+w /tmp/zookeeper && \
+  chmod g+w /etc/hosts && \
   rm -f /tmp/zookeeper-*
 
 # Configure
