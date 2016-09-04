@@ -232,5 +232,32 @@ $ docker push $REG/myproject/zookeeper
 $ export REG
 $ sh create-services.sh 
 $ sh create-pods.sh 
+
+$ oc rsh zookeeper-pod-2
+sh-4.2# cd /opt/zookeeper/bin/
+sh-4.2# ./zkCli.sh -server service-server1:2181,service-server2:2181,service-server3:2181
+Connecting to service-server1:2181,service-server2:2181,service-server3:2181
+[...]
+[zk: service-server1:2181,service-server2:2181,service-server3:2181(CONNECTED) 0] ls /
+[zookeeper] 
+[zk: service-server1:2181,service-server2:2181,service-server3:2181(CONNECTED) 1] create /folder mydata
+Created /folder
+[zk: service-server1:2181,service-server2:2181,service-server3:2181(CONNECTED) 2] ls /
+[folder, zookeeper]
+[zk: service-server1:2181,service-server2:2181,service-server3:2181(CONNECTED) 3] get /folder
+mydata
+cZxid = 0x100000012
+ctime = Sun Sep 04 14:43:16 UTC 2016
+mZxid = 0x100000012
+mtime = Sun Sep 04 14:43:16 UTC 2016
+pZxid = 0x100000012
+cversion = 0
+dataVersion = 0
+aclVersion = 0
+ephemeralOwner = 0x0
+dataLength = 6
+numChildren = 0
+
+
 ``````
 
