@@ -19,3 +19,4 @@ Kubernetes:
 
 http://planet.jboss.org/post/zookeeper_on_kubernetes
 https://github.com/fabric8io/fabric8-zookeeper-docker
+https://github.com/openshift/origin/tree/master/examples/zookeeper

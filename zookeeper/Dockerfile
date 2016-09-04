@@ -20,7 +20,7 @@ ENV JAVA_HOME /usr/lib/jvm/jre
 
 # Java installation
 RUN \
-  yum install -y java-${JAVA_VERSION}-openjdk
+  yum install -y java-${JAVA_VERSION}-openjdk 
 
 # Zookeeper download
 RUN \
@@ -41,14 +41,18 @@ RUN \
 RUN \
   tar xvzf /tmp/zookeeper-${ZK_VERSION}.tar.gz -C /opt && \
   mv /opt/zookeeper-${ZK_VERSION} /opt/zookeeper && \
+  mkdir -p /tmp/zookeeper && \
+  chmod g+w /tmp/zookeeper && \
+  chmod g+w /etc/hosts && \
   rm -f /tmp/zookeeper-*
 
 # Configure
-RUN \
-  cp /opt/zookeeper/conf/zoo_sample.cfg /opt/zookeeper/conf/zoo.cfg && \
-  mkdir -p /tmp/zookeeper
+COPY \
+  zoo-service.cfg /opt/zookeeper/conf/zoo.cfg 
+  
+COPY \
+  docker-entrypoint.sh /opt/zookeeper/
 
 EXPOSE 2181 2888 3888    
   
-ENTRYPOINT ["/opt/zookeeper/bin/zkServer.sh"]
-CMD ["start-foreground"] 
+ENTRYPOINT ["/opt/zookeeper/docker-entrypoint.sh"]

@@ -158,29 +158,79 @@ A simple Docker container running Apache Zookeeper is quite simple.
 
 ``````
 $ docker build -f Dockerfile.single -t bigcontainer/zookeeper .
-$ docker run -d bigcontainer/zookeeper
+$ docker run --name=zookeeper -d bigcontainer/zookeeper
 $ docker ps
-$ docker inspect drunk_euler | grep IPAddress
+$ docker inspect zookeeper | grep IPAddress
 $ bin/zkCli.sh  -server 172.17.0.2:2181
 [zk: 172.17.0.2:2181(CONNECTED) 0] ls /
 [zookeeper]
 [zk: 172.17.0.2:2181(CONNECTED) 1] quit
-
 ``````
 However only one Zookeeper server is not useful at all. We have to create a
-Zookeeper Essemble with a least three server to fulfil a quorum. Here is where
+Zookeeper Essemble with at least three server to fulfil a quorum. Here is where
 the task is not trivial: all of the servers need to be aware of each other. We
 have to create multiple containers from the same image and have them point to
 each other.
 
-docker network create backend
-docker network ls
-docker run --net=backend --name=server1 -d bigcontainer/zookeeper 
-docker run --net=backend --name=server2 -d bigcontainer/zookeeper 
-docker exec -it server2 /bin/bash
-docker run --net=backend --name=server3 -d bigcontainer/zookeeper 
+With User-Defined Networks (Docker 1.9.0 +) we can connect containers placing
+them in the same network or sub-network.
+``````
+$ docker build -f Dockerfile.ensemble -t bigcontainer/zookeeper .
+$ docker network create mynet
+$ docker network ls
+$ docker run -e "MYID=1" --net=mynet --name=server1 -d bigcontainer/zookeeper 
+$ docker run -e "MYID=2" --net=mynet --name=server2 -d bigcontainer/zookeeper 
+$ docker run -e "MYID=3" --net=mynet --name=server3 -d bigcontainer/zookeeper 
+$ docker exec -it server1 /bin/bash
+[89dd8c7418c9 /]# /opt/zookeeper/bin/zkCli.sh -server server1:2181,server2:2181,server3:2181
+[zk: server1:2181,server2:2181,server3:2181(CONNECTED) 0] create /zk_test my_data
+Created /zk_test
+[zk: server1:2181,server2:2181,server3:2181(CONNECTED) 1] ls /
+[zookeeper, zk_test]
+[zk: server1:2181,server2:2181,server3:2181(CONNECTED) 2] get /zk_test
+my_data
+cZxid = 0x100000002
+ctime = Mon Aug 29 12:27:10 UTC 2016
+mZxid = 0x100000002
+mtime = Mon Aug 29 12:27:10 UTC 2016
+pZxid = 0x100000002
+cversion = 0
+dataVersion = 0
+aclVersion = 0
+ephemeralOwner = 0x0
+dataLength = 7
+numChildren = 0
+[zk: server1:2181,server2:2181,server3:2181(CONNECTED) 3] quit
+``````
 
 ## Zookeeper cluster in OpenShift
-[TODO]
+We are creating raw pods for this example, probalby it not the best practice,
+as well pods only take full docker pull specs for the image path. they do not
+understand imagestreams, so there is no "correct" way to reference an
+imagestream from a pod, so we have to referencence the registry service IP. 
+Anyway this is only for understanding the pains behind this approach.
 
+An important thing to note is that ports 2181, 2888, and 3888 should be open
+across all three machines. In this example, config, port 2181 is used by
+ZooKeeper clients to connect to the ZooKeeper servers, port 2888 is used by
+peer ZooKeeper servers to communicate with each other, and port 3888 is used
+for leader election. You may chose any ports of your liking. It's usually
+recommended that you use the same ports on all of the ZooKeeper servers.
+``````
+$ oc login -u system:admin
+$ REG=$(oc --namespace=default get svc docker-registry --template={{.spec.portalIP}}):5000
+$ oc adm policy add-role-to-user system:registry developer
+$ oc adm policy add-role-to-user system:image-builder developer
+
+$ oc login -u developer
+$ docker login -u $(oc whoami) -p $(oc whoami -t) -e none $REG
+
+$ docker build -t bigcontainer/zookeeper .
+$ docker tag bigcontainer/zookeeper $REG/myproject/zookeeper
+$ docker push $REG/myproject/zookeeper
+
+$ export REG
+$ sh create-services.sh 
+$ sh create-pods.sh 
+``````
 
