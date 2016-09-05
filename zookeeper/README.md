@@ -154,7 +154,8 @@ OpenShift.
 
 ## Zookeeper in Containers (Docker)
 
-A simple Docker container running Apache Zookeeper is quite simple.
+A simple Docker container running Apache Zookeeper is quite simple. The
+following information is relative to the folder **apache**.
 
 ``````
 $ docker build -f Dockerfile.single -t bigcontainer/zookeeper .
@@ -257,7 +258,5 @@ aclVersion = 0
 ephemeralOwner = 0x0
 dataLength = 6
 numChildren = 0
-
-
 ``````
 
