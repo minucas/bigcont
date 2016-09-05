@@ -1,4 +1,4 @@
-## Quick Background: MongoDB
+### Quick Background: MongoDB
 
 MongoDB is a document-oriented database, a kind of NoSQL database, not a
 relational one. NoSQL solutions were not created for the same purposes as SQL.
@@ -20,14 +20,14 @@ documents automatically and routing user requests to the correct machines.
 Scale up the cluster (when we need more nodes) is as easy as to add new machines,
 and MongoDB will figure out how the existing data should be spread to them.
 
-## Why is important MongoDB in a Big Data ecosystem?
+### Why is important MongoDB in a Big Data ecosystem?
 
 MongoDB is very scalable, has high reliability, low initial cost (low learning
 curve). It is the foundation of a plethora of tools (as internal database) and
 frequently is the NoSQL database of election for Big Data programmers: it's easy
 to use. It's one of the most popular NoSQL databases in the Big Data scene.
 
-## Getting started with MongoDB
+### Getting started with MongoDB
 
 
 ## Simple session with MongoDB
