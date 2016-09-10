@@ -66,3 +66,15 @@ different routing suffix, use the **--routing-suffix** flag.
 ## Advanced Testbed Environment
 
 [Advanced testbed notes](testbed/README.md)
+
+## Working status
+
+The following is a table with the working status for each tool.
+
+| Tool | Overview | Docker | OpenShift manually | Template |
+| :--  |:--------:|:------:|:------------------:|:--------:|
+|[Apache Flume](flume/README.md) Apache Flume| Done | Done | Done | TODO |
+|[Apache Zookeeper](zookeeper/README.md)| Done | Done | Done | TODO |
+
+
+
