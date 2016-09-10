@@ -10,8 +10,11 @@ ADD \
 RUN \
     yum install -y mongodb-org
 
-VOLUME /data
+RUN mkdir -p /data/db
 
 EXPOSE 27017
+  
+COPY \
+  docker-entrypoint.sh /opt/
 
-ENTRYPOINT ["/usr/bin/mongod"]
+ENTRYPOINT ["/opt/docker-entrypoint.sh"]
