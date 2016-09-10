@@ -71,6 +71,10 @@ different routing suffix, use the **--routing-suffix** flag.
 
 The following is a table with the working status for each tool.
 
+The table is based on the following workflow:
+
+![Tool workflow](https://github.com/bigcontainer/bigcontainer.github.io/blob/master/images/tool-working-flow.png)
+
 | Tool | Overview | Docker | OpenShift manually | Template |
 | :--  |:--------:|:------:|:------------------:|:--------:|
 |[Apache Flume](flume/README.md)| Done | Done | Done | TODO |
