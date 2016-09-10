@@ -64,4 +64,32 @@ WriteResult({ "nInserted" : 1  })
 
 ## MongoDB in Containers (Docker)
 
+The MongoDB "helloworl Docker" is as simple as the following session:
+
+``````
+$ cd upstream
+$ docker build -f Dockerfile.single -t bigcontainer/mongodb .
+$ docker run --name=mongodb -d bigcontainer/mongodb
+$ docker inspect mongodb | grep IPAddress
+$ mongodb/bin/mongo --host 172.17.0.2
+MongoDB shell version: 3.2.9
+connecting to: 172.17.0.2:27017/test
+> db
+test
+> exit
+``````
+By default, the mongod process uses the /data/db directory. This directory is
+within the container, so is no useful at all, this is only a "hello world!".
+
+``````
+$ mkdir -p data/db
+$ chown -R root: data/
+$ sudo chcon -Rt svirt_sandbox_file_t data/
+$ docker build -f Dockerfile.cluster -t bigcontainer/mongodb .
+$ docker run --name=mongodb-server1 -v $PWD/data:/data -d bigcontainer/mongodb
+``````
+
+
 ## Zookeeper cluster in OpenShift
+
+
