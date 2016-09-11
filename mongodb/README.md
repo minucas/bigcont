@@ -64,4 +64,101 @@ WriteResult({ "nInserted" : 1  })
 
 ## MongoDB in Containers (Docker)
 
+The MongoDB "helloworl Docker" is as simple as the following session:
+
+``````
+$ cd upstream
+$ docker build -f Dockerfile.single -t bigcontainer/mongodb .
+$ docker run --name=mongodb -d bigcontainer/mongodb
+$ docker inspect mongodb | grep IPAddress
+$ mongodb/bin/mongo --host 172.17.0.2
+MongoDB shell version: 3.2.9
+connecting to: 172.17.0.2:27017/test
+> db
+test
+> exit
+``````
+By default, the mongod process uses the /data/db directory. This directory is
+within the container, so is no useful at all, this is only a "hello world!".
+A simple way to avoid this "ephemeral" behaviour of containers is to use A data
+volume, which is a specially-designated directory within one or more containers that
+bypasses the Union File System. Data volumes provide several useful features
+for persistent data.
+
+``````
+$ mkdir -p data/db
+$ chown -R root: data/
+$ sudo chcon -Rt svirt_sandbox_file_t data/
+$ docker build -f Dockerfile.single -t bigcontainer/mongodb .
+$ docker run --name=mongodb -v $PWD/data:/data -d bigcontainer/mongodb
+``````
+
+### MongoDB clustering
+
+Since version 1.6.0, MongoDB has included native support for database clusters
+called “Replica Sets”. Moving beyond master-slave replication, these sets allow
+a group of MongoDB instances to automatically negotiate which instances are
+“master” and “slaves”. Replica sets are also able to renegotiate the master or
+slave status of the nodes in the cluster in response to the status of
+individual nodes. All members of Replica Sets are eventually consistent with
+each other. Replica sets support clusters of up to seven MongoDB instances.
+
+- Configure MongoDB Master-Slave Replication
+
+One database server (the “master”) is in charge and can do anything.  A bunch
+of other database servers keep copies of all the data that’s been written to
+the master and can optionally be queried (these are the “slaves”).  Slaves
+cannot be written to directly, they are just copies of the master database.
+Setting up a master and slaves allows you to scale reads nicely because you can
+just keep adding slaves to increase your read capacity.  Slaves also make great
+backup machines. If your master explodes, you’ll have a copy of your data safe
+and sound on the slave.
+
+
+``````
+$ docker build -f Dockerfile.masterslave -t bigcontainer/mongodb .
+$ docker network create mynet
+$ docker run -e "ROLE=master" --net=mynet --name=server1 -d bigcontainer/mongodb
+$ docker run -e "ROLE=slave" --net=mynet --name=server2 -d bigcontainer/mongodb
+$ docker inspect server1 | grep IPAddress
+	172.19.0.2
+$ docker inspect server2 | grep IPAddress
+	172.19.0.3
+
+$ mongodb/bin/mongo --host 172.19.0.2
+> rs.printReplicationInfo()
+configured oplog size:   990MB
+log length start to end: 555secs (0.15hrs)
+oplog first event time:  Sat Sep 10 2016 19:17:58 GMT+0200 (CEST)
+oplog last event time:   Sat Sep 10 2016 19:27:13 GMT+0200 (CEST)
+now:                     Sat Sep 10 2016 19:27:17 GMT+0200 (CEST)
+> exit
+
+$ mongodb/bin/mongo --host 172.19.0.3
+> rs.printSlaveReplicationInfo()
+source: server1:27017
+        syncedTo: Sat Sep 10 2016 19:28:43 GMT+0200 (CEST)
+        11 secs (0 hrs) behind the freshest member (no primary available at the moment)
+> exit
+``````
+
+- Configure MongoDB Replica Sets
+
+Replica Sets are a great way to replicate MongoDB data across multiple servers
+and have the database automatically failover in case of server failure. Read
+workloads can be scaled by having clients directly connect to secondary
+instances. Note that master/slave MongoDB replication is not the same thing as
+a Replica Set, and does not have automatic failover.
+
+We will deploy a replica set called rs0. This replica set will have as primary
+node mongo1 replicating to two secondary instances mongo2 and mongo3.
+
+Three member replica sets provide enough redundancy to survive most network
+partitions and other system failures. These sets also have sufficient capacity
+for many distributed read operations. Replica sets should always have an odd
+number of members. 
+
+
 ## Zookeeper cluster in OpenShift
+
+
