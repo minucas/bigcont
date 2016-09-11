@@ -142,7 +142,22 @@ source: server1:27017
 > exit
 ``````
 
-- Configure MongDB Replica Sets
+- Configure MongoDB Replica Sets
+
+Replica Sets are a great way to replicate MongoDB data across multiple servers
+and have the database automatically failover in case of server failure. Read
+workloads can be scaled by having clients directly connect to secondary
+instances. Note that master/slave MongoDB replication is not the same thing as
+a Replica Set, and does not have automatic failover.
+
+We will deploy a replica set called rs0. This replica set will have as primary
+node mongo1 replicating to two secondary instances mongo2 and mongo3.
+
+Three member replica sets provide enough redundancy to survive most network
+partitions and other system failures. These sets also have sufficient capacity
+for many distributed read operations. Replica sets should always have an odd
+number of members. 
+
 
 ## Zookeeper cluster in OpenShift
 
