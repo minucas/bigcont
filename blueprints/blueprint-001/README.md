@@ -1,0 +1,3 @@
+# Blueprint #1: 3-Tier Simple Flight Delays Analytics
+
+Planning WIP ...
