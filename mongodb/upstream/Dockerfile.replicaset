@@ -10,8 +10,10 @@ ADD \
 RUN \
     yum install -y mongodb-org
 
-RUN mkdir -p /data/db
+RUN \
+    mkdir -p /data/db
 
 EXPOSE 27017
   
-ENTRYPOINT ["/usr/bin/mongod", "--replSet", "rs0", "--smallfiles", "--oplogSize", "128"]
+ENTRYPOINT \
+    ["/usr/bin/mongod", "--replSet", "rs0", "--smallfiles", "--oplogSize", "128"]
