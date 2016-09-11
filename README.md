@@ -82,6 +82,7 @@ The table is based on the following workflow:
 |[MongoDB](mongodb/README.md)| Done | Done | TODO | TODO |
 |[TensorFlow](tensorflow/README.md)| Done | TODO | TODO | TODO |
 |[LogStash](logstash/README.md)| Done | TODO | TODO | TODO |
+|[Apache Kafka](kafka/README.md)| Done | TODO | TODO | TODO |
 
 
 
