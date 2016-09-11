@@ -158,6 +158,68 @@ partitions and other system failures. These sets also have sufficient capacity
 for many distributed read operations. Replica sets should always have an odd
 number of members. 
 
+In this example, we will have a replica set (rs0) with a database
+(mydb) and a collection (zip) on 3 servers (mongo1, mongo2,mongo3).
+
+``````
+$ docker build -f Dockerfile.replicaset -t bigcontainer/mongodb .
+$ docker network create mynet
+$ docker run --net mynet --name mongo1 -h mongo1 -d bigcontainer/mongodb
+$ docker run --net mynet --name mongo2 -h mongo2 -d bigcontainer/mongodb
+$ docker run --net mynet --name mongo3 -h mongo3 -d bigcontainer/mongodb
+$ docker run --net mynet --name mongoshell -h mongoshell -it --entrypoint=/bin/bash -d bigcontainer/mongodb
+$ docker attach mongoshell
+[root@mongoshell /]# mongo --host=mongo1
+MongoDB shell version: 3.2.9
+connecting to: mongo1:27017/test
+Welcome to the MongoDB shell.
+> rs.initiate()
+> rs.add("mongo1")
+> rs.add("mongo2")
+> rs.add("mongo3")
+> rs.status()
+> exit
+[root@mongoshell /]# curl -O http://media.mongodb.org/zips.json
+[root@mongoshell ~]# mongoimport --host rs0/mongo1:27017,mongo2:27017,mongo3:27017 --db mydb --collection zip --file zips.json
+2016-09-11T16:53:08.359+0000    connected to:
+rs0/mongo1:27017,mongo2:27017,mongo3:27017
+2016-09-11T16:53:11.346+0000    [###############.........] mydb.zip 1.98MB/3.03MB (65.1%)
+2016-09-11T16:53:12.952+0000    [########################] mydb.zip 3.03MB/3.03MB (100.0%)
+2016-09-11T16:53:12.952+0000    imported 29353 documents
+``````
+- MongoDB Sharded Cluster
+
+As we already know, A Replica-Set means that you have multiple instances of
+MongoDB which each mirror all the data of each other. A replica-set consists of
+one Master (also called "Primary") and one or more Slaves (aka Secondary).
+Read-operations can be served by any slave, so you can increase
+read-performance by adding more slaves to the replica-set (provided that your
+client application is capable to actually use different set-members). But
+write-operations always take place on the master of the replica-set and are
+then propagated to the slaves, so writes won't get faster when you add more
+slaves.
+
+Other kind of configuration (clustered configuration), other than master-slave
+or replica-set, is the sharded-cluster. With Sharded Clustering with use the
+concept of "Sharding": Sharding is the process of storing data records across
+multiple machines and it is MongoDB's approach to meeting the demands of data
+growth. As the size of the data increases, a single machine may not be
+sufficient to store the data nor provide an acceptable read and write
+throughput. Sharding solves the problem with horizontal scaling. 
+
+In a MongoDB Sharded Cluster, each shard of the cluster (which can
+also be a replica-set) takes care of a part of the data. Each request, both
+reads and writes, is served by the cluster where the data resides. This means
+that both read- and write performance can be increased by adding more shards to
+a cluster. 
+
+In a Sharded Cluster, another 2 new roles will be added: mongos and mongod
+config. mongos is a routing service for MongoDB Sharded Clusters, it determines
+the location of the data in the cluster, and forwards operations to the right
+shard. mongos requires mongod config, which stores the metadata of the cluster.
+
+We are not goint to practise this cluster schema in this Docker section, we will 
+study this architecture in the OpenShift advanced section.
 
 ## Zookeeper cluster in OpenShift
 
