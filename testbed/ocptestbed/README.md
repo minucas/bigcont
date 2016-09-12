@@ -1,5 +1,4 @@
-# OpenShift Container Plaform HA
+# OpenShift Origin Testbed based on Vagrant
 
-This is a Vagrant Project for advanced (HA) OpenShift Container Platform
-deployment.
+This is a Vagrant Project for OpenShift Origin.
 
