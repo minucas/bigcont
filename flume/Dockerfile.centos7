@@ -32,7 +32,8 @@ RUN \
 # Install 
   tar xvzf /tmp/apache-flume-${FL_VERSION}-bin.tar.gz -C /opt && \
   mv /opt/apache-flume-${FL_VERSION}-bin /opt/flume && \
-  rm -f /tmp/apache-flume-*
+  rm -f /tmp/apache-flume-* && \
+  rm -f /tmp/KEYS
 
 ADD files/hello-world.conf /opt/flume/hello-world.conf
 
