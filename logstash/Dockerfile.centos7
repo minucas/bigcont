@@ -1,0 +1,34 @@
+#
+# Logstash Dockerfile
+#
+# https://github.com/bigcontainer/bigcont
+#
+
+# Pull base image
+FROM centos:7
+
+# Build-time vars
+ARG LS_VERSION=2.3.4
+ARG LS_MIRROR=https://packages.elastic.co/logstash/2.3/centos
+
+# Custom metadata
+LABEL name="logstash" logstash-version=$LS_VERSION
+
+# Define commonly used JAVA_HOME variable
+ENV JAVA_VERSION 1.8.0 
+ENV JAVA_HOME /usr/lib/jvm/jre
+
+# Java installation
+RUN \
+  yum update -y && \
+  yum install -y java-${JAVA_VERSION}-openjdk wget && \
+  yum clean all
+
+# Logstash installation
+RUN \
+  yum install logstash
+
+EXPOSE 2181 2888 3888    
+  
+#ENTRYPOINT ["/opt/zookeeper/bin/zkServer.sh"]
+#CMD ["start-foreground"] 
