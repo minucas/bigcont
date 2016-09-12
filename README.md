@@ -79,9 +79,10 @@ The table is based on the following workflow:
 | :--  |:--------:|:------:|:------------------:|:--------:|
 |[Apache Flume](flume/README.md)| Done | Done | Done | TODO |
 |[Apache Zookeeper](zookeeper/README.md)| Done | Done | Done | TODO |
-|[MongoDB](mongodb/README.md)| Done | TODO | TODO | TODO |
+|[MongoDB](mongodb/README.md)| Done | Done | TODO | TODO |
 |[TensorFlow](tensorflow/README.md)| Done | TODO | TODO | TODO |
 |[LogStash](logstash/README.md)| Done | TODO | TODO | TODO |
+|[Apache Kafka](kafka/README.md)| Done | TODO | TODO | TODO |
 
 
 
