@@ -90,6 +90,6 @@ The table is based on the following workflow:
 If you would like to contribute, please take a look to the workflow we are
 following:
 
-![Big Data Containers Project workflow](https://github.com/bigcontainer/docs/blob/master/git-workflow.md)
+[Big Data Containers Project workflow](https://github.com/bigcontainer/docs/blob/master/git-workflow.md)
 
 
