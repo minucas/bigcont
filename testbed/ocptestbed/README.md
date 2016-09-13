@@ -41,3 +41,4 @@ data locality (In short, keep data on disks that are close to the CPU and RAM
 that will be used to process and store it).
 
 
+![Testbed Diagram](https://github.com/bigcontainer/bigcont/blob/master/testbed/ocptestbed/img/vagrant-simple-testbed.png)
