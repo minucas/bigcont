@@ -53,7 +53,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         domain.memory = "#{vm_memory}".to_i
         domain.cpus = 1
         # workers nodes simulate JBOD disk arrays (infra node excluded)
-        domain.storage 0
+        # Issue: https://github.com/vagrant-libvirt/vagrant-libvirt/issues/651
         if "#{node.vm.hostname}" == "node1" 
             domain.storage :file, :size => '10G'
             domain.storage :file, :size => '10G'
