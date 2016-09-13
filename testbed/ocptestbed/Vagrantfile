@@ -54,14 +54,11 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         domain.cpus = 1
         # workers nodes simulate JBOD disk arrays (infra node excluded)
         # Issue: https://github.com/vagrant-libvirt/vagrant-libvirt/issues/651
-        if "#{node.vm.hostname}" == "node1" 
+        if "#{vm_name}" == "node1" || 
+           "#{vm_name}" == "node2" || 
+           "#{vm_name}" == "node1"
             domain.storage :file, :size => '10G'
             domain.storage :file, :size => '10G'
-            domain.storage :file, :size => '10G'
-        elsif"#{node.vm.hostname}" == "node2" 
-            domain.storage :file, :size => '10G'
-            domain.storage :file, :size => '10G'
-        elsif"#{node.vm.hostname}" == "node3" 
             domain.storage :file, :size => '10G'
         end
       end
