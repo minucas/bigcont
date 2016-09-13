@@ -1,0 +1,20 @@
+---
+- name: create input file for sfdisk
+  lineinfile: dest=/tmp/sfdisk.in create=yes line=";"
+
+- name: create partition on selected device
+  shell: sfdisk /dev/vdb < /tmp/sfdisk.in
+  ignore_errors: yes
+  become: yes
+
+- name: create filesystem in JBODs
+  filesystem: fstype=ext4 dev=/dev/vdb1
+  become: yes
+
+- name: Creates directory
+  file: path=/srv/disk1 state=directory mode=0755
+  become: yes
+
+- name: mount filesystem and setup /etc/fstab
+  mount: name=/srv/disk1 src=/dev/vdb1 fstype=ext4 state=mounted
+  become: yes
