@@ -1,9 +1,9 @@
 # Environment variables for OpenShift Origin Testbed
 #
 # 1 Management Node (with NFS Server as PVs, DNS wildcards, and Auth)
-# 1 Master nodes
-# 2 Infra nodes 
-# 2 Worker nodes
+# 1 Master node
+# 1 Infra node
+# 3 Worker nodes
 
 BOX_NAME='centos/7'
 NUM_HOSTS=6
