@@ -25,3 +25,6 @@ _testmain.go
 
 # vagrant working folders
 .vagrant
+
+# ansible errors
+*.retry
