@@ -68,8 +68,12 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         ansible.groups = {
           "mn-group" => ["mn"],
           "master-group" => ["master"],
-          "worker-group" => ["node1", "node2", "node3", "node4"],
-          "all_groups:children" => ["mn-group", "master-group", "worker-group"]
+          "infra-group" => ["node1"],
+          "worker-group" => ["node2", "node3", "node4"],
+          "all_groups:children" => ["mn-group", 
+                                    "master-group", 
+                                    "infra-group", 
+                                    "worker-group"]
         }
       end
     end

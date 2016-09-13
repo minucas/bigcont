@@ -12,6 +12,12 @@
    - openshift-master
 
 # Play 3
+- hosts: infra-group
+  roles:
+   - common
+   - openshift-infra
+
+# Play 4
 - hosts: worker-group
   # Strategies: Plays execution control for many hosts.
   # linear (default): All hosts have to finish one task before any of them can 
@@ -24,7 +30,7 @@
   strategy: free
   roles:
    - common
-   - opeshift-worker
+   - openshift-worker
 
 
 
