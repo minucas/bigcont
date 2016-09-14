@@ -12,59 +12,32 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   vagrant_cluster_config = {
     "box_name"  => ENV['BOX_NAME'] || "centos/7",
-    "subscription_register"  => ENV['SUB_REG'],
-    "subscription_user"  => ENV['SUB_USER'],
-    "subscription_pass"  => ENV['SUB_PASS'],
     "num_nodes" => ENV['NUM_HOSTS'] || 2,
     "mn_memory"  => ENV['MN_MEMORY'] || 512,
     "master_memory"  => ENV['MASTER_MEMORY'] || 512,
-    "node_memory"  => ENV['NODE_MEMORY'] || 512,
-    "etcd_memory"  => ENV['ETCD_MEMORY'] || 512,
-    "lb_memory"  => ENV['LB_MEMORY'] || 512
+    "node_memory"  => ENV['NODE_MEMORY'] || 512
   }
 
   config.vm.box = vagrant_cluster_config["box_name"]
-
-  if Vagrant.has_plugin?('vagrant-registration')
-    # enable or disable registration step.
-    config.registration.skip = vagrant_cluster_config["subscription_register"]
-    config.registration.username = vagrant_cluster_config["subscription_user"] 
-    config.registration.password = vagrant_cluster_config["subscription_pass"] 
-    # disables automatic unregistration on halt (on shut down).
-    # So the box will unregister only on destroy.
-    config.registration.unregister_on_halt = false
-    # disable auto-attach this will be provisioner task.
-    config.registration.auto_attach = false
-  end
 
   # Disabling the default /vagrant share
   config.vm.synced_folder ".", "/vagrant", disabled: true
 
   # 1: Management Node
-  # 2, 3, 4: Master Nodes
-  # 5, 6, 7, 8, 9, 10: Worker Nodes (included Infra nodes)
-  # 11, 12, 13: Load Balancer nodes
-  # 14, 15, 16: Etcd cluster nodes
+  # 2: Master Node
+  # 3, 4, 5, 6: Worker Nodes (included Infra nodes)
   
   N = (vagrant_cluster_config['num_nodes']).to_i
 
   (1..N).each do |i|
-    if i == 2 || i == 3 || i == 4
-      # openshift master nodes
-      vm_name = "master#{i-1}"
+    if i == 2 
+      # openshift master node
+      vm_name = "master"
       vm_memory = vagrant_cluster_config['master_memory']
-    elsif i == 5 || i == 6 || i == 7 || i == 8 || i == 9 || i == 10 
+    elsif i > 2 && i <= 6
       # openshift workers nodes and infra nodes
-      vm_name = "node#{i-4}"
+      vm_name = "node#{i-2}"
       vm_memory = vagrant_cluster_config['node_memory']
-    elsif i == 11 || i == 12 || i == 13 
-      # Load balancers
-      vm_name = "lb#{i-10}"
-      vm_memory = vagrant_cluster_config['lb_memory']
-    elsif i == 14 || i == 15 || i == 16 
-      # Etcd nodes
-      vm_name = "etcd#{i-13}"
-      vm_memory = vagrant_cluster_config['etcd_memory']
     else
       # management node
       vm_name = "mn"
@@ -79,19 +52,30 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         domain.driver = 'kvm'
         domain.memory = "#{vm_memory}".to_i
         domain.cpus = 1
+        # workers nodes simulate JBOD disk arrays (infra node excluded)
+        # Issue: https://github.com/vagrant-libvirt/vagrant-libvirt/issues/651
+        if "#{vm_name}" == "node2" || 
+           "#{vm_name}" == "node3" || 
+           "#{vm_name}" == "node4"
+            domain.storage :file, :size => '10G'
+            domain.storage :file, :size => '10G'
+            domain.storage :file, :size => '10G'
+        end
       end
-      # The Ansible provisioner is run every node
-      # The inventory file is re-created on each run.
-      # FIXME: workers hosts must be a pattern. This
-      # only works in Vagrant +1.8.0
-      #node.vm.provision :ansible do |ansible|
-      #  ansible.groups = {
-      #    "mn" => ["sparkmn"],
-      #    "master" => ["sparkmaster"],
-      #    "workers" => ["sparkworker1", "sparkworker2"],
-      #  }
-      #  ansible.playbook = "provisioning/site.yml"
-      #end
+      # Ansible groups only works in Vagrant +1.8.0
+      node.vm.provision :ansible do |ansible|
+        ansible.playbook = "provisioning/site.yml"
+        ansible.groups = {
+          "mn-group" => ["mn"],
+          "master-group" => ["master"],
+          "infra-group" => ["node1"],
+          "worker-group" => ["node2", "node3", "node4"],
+          "all_groups:children" => ["mn-group", 
+                                    "master-group", 
+                                    "infra-group", 
+                                    "worker-group"]
+        }
+      end
     end
   end 
 end
