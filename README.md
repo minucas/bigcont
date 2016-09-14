@@ -66,3 +66,30 @@ different routing suffix, use the **--routing-suffix** flag.
 ## Advanced Testbed Environment
 
 [Advanced testbed notes](testbed/README.md)
+
+## Working status
+
+The following is a table with the working status for each tool.
+
+The table is based on the following workflow:
+
+![Tool workflow](https://github.com/bigcontainer/bigcontainer.github.io/blob/master/images/tool-working-flow.png)
+
+| Tool | Overview | Docker | OpenShift manually | Template |
+| :--  |:--------:|:------:|:------------------:|:--------:|
+|[Apache Flume](flume/README.md)| Done | Done | Done | TODO |
+|[Apache Zookeeper](zookeeper/README.md)| Done | Done | Done | TODO |
+|[MongoDB](mongodb/README.md)| Done | Done | TODO | TODO |
+|[TensorFlow](tensorflow/README.md)| Done | TODO | TODO | TODO |
+|[LogStash](logstash/README.md)| Done | TODO | TODO | TODO |
+|[Apache Kafka](kafka/README.md)| Done | TODO | TODO | TODO |
+
+
+## Contribute to Big Data Containers Project
+
+If you would like to contribute, please take a look to the workflow we are
+following:
+
+[Big Data Containers Project workflow](https://github.com/bigcontainer/docs/blob/master/git-workflow.md)
+
+

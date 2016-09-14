@@ -155,7 +155,7 @@ OpenShift.
 ## Zookeeper in Containers (Docker)
 
 A simple Docker container running Apache Zookeeper is quite simple. The
-following information is relative to the folder **apache**.
+following information is relative to the folder **upstream**.
 
 ``````
 $ docker build -f Dockerfile.single -t bigcontainer/zookeeper .
@@ -259,4 +259,6 @@ ephemeralOwner = 0x0
 dataLength = 6
 numChildren = 0
 ``````
+An the always useful web console screenshot:
 
+![Web Console Zookeeper](https://github.com/bigcontainer/bigcont/blob/master/zookeeper/upstream/img/zookeeper-ensemble.png)
