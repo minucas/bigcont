@@ -2,19 +2,39 @@
 - name: create input file for sfdisk
   lineinfile: dest=/tmp/sfdisk.in create=yes line=";"
 
-- name: create partition on selected device
-  shell: sfdisk /dev/vdb < /tmp/sfdisk.in
+- name: create partition on selected devices
+  shell: sfdisk {{ item }} < /tmp/sfdisk.in
   ignore_errors: yes
+  with_items:
+    - /dev/vdb
+    - /dev/vdc
+    - /dev/vdd
   become: yes
 
 - name: create filesystem in JBODs
-  filesystem: fstype=ext4 dev=/dev/vdb1
+  filesystem: fstype=ext4 dev={{ item }}
+  with_items:
+    - /dev/vdb1
+    - /dev/vdc1
+    - /dev/vdd1
   become: yes
 
 - name: Creates directory
-  file: path=/srv/disk1 state=directory mode=0755
+  file: path={{ item }} state=directory mode=0755
+  with_items:
+    - /srv/disk1
+    - /srv/disk2
+    - /srv/disk3
   become: yes
 
 - name: mount filesystem and setup /etc/fstab
-  mount: name=/srv/disk1 src=/dev/vdb1 fstype=ext4 state=mounted
+  mount: name={{ item.name }} src={{ item.src }} fstype=ext4 state=mounted
+  with_items:
+    - { name: '/srv/disk1', src: '/dev/vdb1' }
+    - { name: '/srv/disk2', src: '/dev/vdc1' }
+    - { name: '/srv/disk3', src: '/dev/vdd1' }
   become: yes
+
+
+
+
