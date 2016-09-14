@@ -57,8 +57,13 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         if "#{vm_name}" == "node2" || 
            "#{vm_name}" == "node3" || 
            "#{vm_name}" == "node4"
+            # disk for Docker backend storage
+            domain.storage :file, :size => '10G'
+            # disks for JBOD
             domain.storage :file, :size => '10G'
             domain.storage :file, :size => '10G'
+        elsif "#{vm_name}" == "node1"
+            # disk for Docker backend storage in infra node
             domain.storage :file, :size => '10G'
         end
       end
