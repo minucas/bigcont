@@ -43,6 +43,8 @@ hardware used for this test is a NVIDIA Geforce 210.
 We have to install the 340.xx Legacy drivers (last driver with GeForce 210 
 support), in order to run this tests with our NVIDIA avaiable for this proof.
 
+https://developer.nvidia.com/cuda-legacy-gpus
+
 Installing the CUDA driver:
 
 ``````
@@ -75,7 +77,6 @@ Fri Oct  7 13:33:19 2016
 |   0  GeForce 210         Off  | 0000:07:00.0     N/A |                  N/A |
 | 35%   47C    P0    N/A /  N/A |      2MiB /  1023MiB |     N/A      Default |
 +-------------------------------+----------------------+----------------------+
-                                                                               
 +-----------------------------------------------------------------------------+
 | Compute processes:                                               GPU Memory |
 |  GPU       PID  Process name                                     Usage      |
@@ -88,6 +89,8 @@ Fri Oct  7 13:33:19 2016
 We have to install a CUDA tookit with support for Geforce 210, the last CUDA
 tookit with support for this hardware is the version CUDA 6.5 series. after
 thsi version the support of this device was deprecated.
+
+https://developer.nvidia.com/cuda-toolkit-65
 
 Installing the CUDA tookit for programming with  Cuda Driver API and cuda
 Runtime API:
@@ -114,10 +117,12 @@ The GPU-enabled version of TensorFlow has the following requirements:
 We will also need an NVIDIA GPU supporting compute capability 3.0 or higher.
 
 Unfortunatly in this project we only have a NVDIA GPU with compute capability
-1.2 and we have to use NVIDIA CUDA 6.5
+1.2 and we have to use NVIDIA CUDA 6.5. In CUDA 7+ compute capabilities 1.x are 
+no longer supported.
 
 We will have to focus on TensorFlow using scalar CPUs and study the CUDA
-capabilities in other project within this project.
+capabilities in other project within this project. (DistributedR with CUDA
+support).
 
 ## TensorFlow in Containers (Docker)
 
