@@ -107,14 +107,17 @@ GCC=g++34 make
 
 The GPU-enabled version of TensorFlow has the following requirements:
 
-NVIDIA CUDA® 7.5 (CUDA 8.0 required for Pascal GPUs)
-NVIDIA cuDNN v4.0 (minimum) or v5.1 (recommended)
+- NVIDIA CUDA® 7.5 (CUDA 8.0 required for Pascal GPUs)
+
+- NVIDIA cuDNN v4.0 (minimum) or v5.1 (recommended)
 
 We will also need an NVIDIA GPU supporting compute capability 3.0 or higher.
 
 Unfortunatly in this project we only have a NVDIA GPU with compute capability
 1.2 and we have to use NVIDIA CUDA 6.5
 
+We will have to focus on TensorFlow using scalar CPUs and study the CUDA
+capabilities in other project within this project.
 
 ## TensorFlow in Containers (Docker)
 
