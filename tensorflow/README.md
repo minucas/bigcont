@@ -6,7 +6,7 @@ TensorFlow originated as an internal library that Google developers used to
 build models in-house.
 
 Starting in 2011, Google Brain built DistBelief as their first-generation,
-proprietary, machine learning system (specillaly designed for Deep Learning, a 
+proprietary, Machine Learning system (specillaly designed for Deep Learning, a 
 branch of Machine Learning). TensorFlow was Google Brain's second generation 
 machine learning system, which was released as open source on November 9, 2015. 
 While the reference implementation runs on single devices, TensorFlow can run 
@@ -26,10 +26,11 @@ Nevertheless Big Data and HPC are hand by hand related, the more data we
 collect, the more computational capacity we need to analyze the data.
 Machine learning is well suited to the complexity of dealing with disparate
 data sources and the huge variety of variables and amounts of data involved. 
+The general rule of thumb in ML is that more data produces better results.
 
-With machine learning we need computation power and massive data processing
-(data driven), this is a kind of technology where massive CPU power and massive
-data I/O converge together.
+With machine learning (aka Iductive Learning) we need computation power and 
+massive data processing (data driven), this is a kind of technology where 
+massive CPU power and massive data I/O converge together.
 
 ## Getting started CUDA
 
@@ -103,7 +104,46 @@ dnf install compat-gcc-34 compat-gcc-34-c++ -y
 cd /usr/local/cuda-6.5/samples/1_Utilities/deviceQuery
 GCC=g++34 make
 ./deviceQuery 
+./deviceQuery Starting...
 
+ CUDA Device Query (Runtime API) version (CUDART static linking)
+
+Detected 1 CUDA Capable device(s)
+
+Device 0: "GeForce 210"
+  CUDA Driver Version / Runtime Version          6.5 / 6.5
+  CUDA Capability Major/Minor version number:    1.2
+  Total amount of global memory:                 1024 MBytes (1073479680 bytes)
+  ( 2 ) Multiprocessors, (  8 ) CUDA Cores/MP:     16 CUDA Cores
+  GPU Clock rate:                                1230 MHz (1.23 GHz)
+  Memory Clock rate:                             600 Mhz
+  Memory Bus Width:                              64-bit
+  Maximum Texture Dimension Size (x,y,z)         1D=(8192), 2D=(65536, 32768), 3D=(2048, 2048, 2048)
+  Maximum Layered 1D Texture Size, (num) layers  1D=(8192), 512 layers
+  Maximum Layered 2D Texture Size, (num) layers  2D=(8192, 8192), 512 layers
+  Total amount of constant memory:               65536 bytes
+  Total amount of shared memory per block:       16384 bytes
+  Total number of registers available per block: 16384
+  Warp size:                                     32
+  Maximum number of threads per multiprocessor:  1024
+  Maximum number of threads per block:           512
+  Max dimension size of a thread block (x,y,z): (512, 512, 64)
+  Max dimension size of a grid size    (x,y,z): (65535, 65535, 1)
+  Maximum memory pitch:                          2147483647 bytes
+  Texture alignment:                             256 bytes
+  Concurrent copy and kernel execution:          Yes with 1 copy engine(s)
+  Run time limit on kernels:                     No
+  Integrated GPU sharing Host Memory:            No
+  Support host page-locked memory mapping:       Yes
+  Alignment requirement for Surfaces:            Yes
+  Device has ECC support:                        Disabled
+  Device supports Unified Addressing (UVA):      No
+  Device PCI Bus ID / PCI location ID:           7 / 0
+  Compute Mode:
+     < Default (multiple host threads can use ::cudaSetDevice() with device simultaneously) >
+
+deviceQuery, CUDA Driver = CUDART, CUDA Driver Version = 6.5, CUDA Runtime
+Version = 6.5, NumDevs = 1, Device0 = GeForce 210
 ``````
 
 ## Important note
