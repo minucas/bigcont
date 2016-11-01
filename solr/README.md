@@ -43,13 +43,27 @@ a general-purpose data-storage and processing technology.**
 
 ## Why is important Apache Solr in a Big Data ecosystem?
 
+Apache Solr is a powerful enterprise search package that lets you run a variety
+of advanced and complex searches on textual content. We are able to search in
+text with different tools in the Big Data context. Nevertheless as Cloudera
+product manager said "Tens of thousands of people know how to write MapReduce,
+millions of people can do SQL queries, but billions of people know how to use a
+search engine". 
+
+Cloudera, Hortonworks and MapR are selected Apache Solr as top level layer on
+top of Apache Lucene.
 
 ## Getting started with Solr
 
 ``````
-$ wget http://www-eu.apache.org/dist/flume/1.6.0/apache-flume-1.6.0-bin.tar.gz
-``````
-## Kafka in Containers (Docker)
+$ wget http://www-eu.apache.org/dist/lucene/solr/6.2.1/solr-6.2.1.tgz
 
-## Kafka cluster in OpenShift
+``````
+## Solr in Containers (Docker)
+
+## Solr cluster in OpenShift
+
+
+
+
 
