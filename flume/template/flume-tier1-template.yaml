@@ -28,6 +28,10 @@ objects:
       port: 5140
       protocol: TCP
       targetPort: 50000
+    - name: metric
+      port: 34545
+      protocol: TCP
+      targetPort: 51000
     selector:
       name: ${FLUME_SERVICE_NAME}
 - apiVersion: v1
@@ -36,6 +40,8 @@ objects:
     name: ${FLUME_SERVICE_NAME}
   spec:
     host: flume-tier1.cloudapps.redhat.lan
+    port: 
+      targetPort: 50000
     to:
       kind: Service
       name: ${FLUME_SERVICE_NAME}
@@ -89,8 +95,16 @@ objects:
         - image: 'flume-service '
           name: "flume"
           ports: 
-          - containerPort: 8080
+          - containerPort: 3450
             protocol: "TCP"
+          - containerPort: 34545
+            protocol: "TCP"
+          readinessProbe:
+            httpGet:
+              path: /metrics
+              port: 34545
+            initialDelaySeconds: 15
+            timeoutSeconds: 1
           imagePullPolicy: IfNotPresent
           resources:
             limits:
