@@ -4,5 +4,3 @@
 oc delete all -l application=flumeapp
 
 oc delete template flume-syslog-to-file
-oc delete serviceaccount flume
-oc delete rolebinding flume_edit
