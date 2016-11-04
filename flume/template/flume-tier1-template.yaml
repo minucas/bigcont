@@ -61,7 +61,7 @@ objects:
     strategy:
       type: Docker
       dockerStrategy:
-        dockerfilePath: "Dockerfile.centos7"
+        dockerfilePath: "Dockerfile"
     output:
       to:
         kind: "ImageStreamTag" 
