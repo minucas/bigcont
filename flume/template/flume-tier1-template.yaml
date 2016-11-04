@@ -1,7 +1,8 @@
 apiVersion: v1
 kind: Template
 labels:
-  template: flume-testing-template
+  application: flumeapp
+  createdby: flume-testing-template
 message: This is a simple Apache Flume template for testing
 metadata:
   annotations:
@@ -14,15 +15,55 @@ metadata:
   name: flume-syslog-to-file
 objects:
 #
-# Build
+# Layer 1: Builds
+# 
+# This layer defines all the builds we will require for our application.
 #
 - apiVersion: v1
   kind: BuildConfig
   metadata:
     name: flume-build
   spec:
+    runPolicy: "Serial"
+    triggers:
+      - type: "ConfigChange"
+    source:
+      type: "Git"
+      git:
+        uri: "https://github.com/bigcontainer/bigcont"
+        ref: "flume-service"
+      contextDir: "flume"
+    strategy:
+      type: Docker
+      dockerStrategy:
+        dockerfilePath: "Dockerfile.centos7"
+    output:
+      to:
+        kind: "ImageStreamTag" 
+        name: "flume-service:latest"
 #
-# Deployment Config
+# Layer 2: Images
+# 
+# This layer defines all the images produced by the builds.
+#
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    creationTimestamp: null
+    name: "flume-service"
+#
+# Layer 3: Deployments
+#
+# This layer defines the core of our applications. It defines what will be
+# running in OpenShift:
+#
+# - A replication controller template: What will be deployed.
+# - The default replica count for the deployment: How many instances will be
+#   deployed and running.
+# - A deployment strategy which will be used to execute the deployment: How it
+#   will be deployed
+# - A set of triggers which cause deployments to be created automatically:
+#   When and Why will it be deployed.
 #
 - apiVersion: v1
   kind: DeploymentConfig
@@ -33,8 +74,6 @@ objects:
     replicas: 1
     selector:
       name: ${FLUME_SERVICE_NAME}
-    strategy:
-      type: Recreate
     template:
       metadata:
         creationTimestamp: null
@@ -42,27 +81,12 @@ objects:
           name: ${FLUME_SERVICE_NAME}
       spec:
         containers:
-        - capabilities: {}
-          env:
-          - name: KUBERNETES_MASTER
-            value: https://kubernetes.default:443
-          - name: KUBERNETES_TRUST_CERTIFICATES
-            value: 'true'
-          image: ' '
+        - image: "flume-service"
+          name: "flume"
+          ports: 
+          - containerPort: 8080
+            protocol: "TCP"
           imagePullPolicy: IfNotPresent
-          livenessProbe:
-            httpGet:
-              path: /login
-              port: 8080
-            initialDelaySeconds: 120
-            timeoutSeconds: 3
-          name: jenkins
-          readinessProbe:
-            httpGet:
-              path: /login
-              port: 8080
-            initialDelaySeconds: 3
-            timeoutSeconds: 3
           resources:
             limits:
               memory: ${MEMORY_LIMIT}
@@ -70,35 +94,36 @@ objects:
             capabilities: {}
             privileged: false
           terminationMessagePath: /dev/termination-log
-          volumeMounts:
-          - mountPath: /var/lib/jenkins
-            name: ${FLUME_SERVICE_NAME}-data
         dnsPolicy: ClusterFirst
         restartPolicy: Always
         serviceAccountName: ${FLUME_SERVICE_NAME}
-        volumes:
-        - emptyDir:
-            medium: ''
-          name: ${FLUME_SERVICE_NAME}-data
     triggers:
-    - imageChangeParams:
+    - type: "ConfigChange"
+    - type: "ImageChange"
+      imageChangeParams:
         automatic: true
         containerNames:
-        - jenkins
+          - "flume"
         from:
           kind: ImageStreamTag
           name: ${FLUME_IMAGE_STREAM_TAG}
-          namespace: ${NAMESPACE}
-        lastTriggeredImage: ''
-      type: ImageChange
-    - type: ConfigChange
+    strategy:
+      type: Recreate
+    paused: false
+    revisionHistoryLimit: 2
+#
+# Layer 4: Abstractions
+#
+# This layer defines all of the additional resources needed for our application
+# to run: Service, Route, ServiceAccount, PVC, etc.
+
 #
 # Service Account
 #
-- apiVersion: v1
-  kind: ServiceAccount
-  metadata:
-    name: ${FLUME_SERVICE_NAME}
+#- apiVersion: v1
+#  kind: ServiceAccount
+#  metadata:
+#    name: ${FLUME_SERVICE_NAME}
 #
 # Route
 #
@@ -108,23 +133,23 @@ objects:
     creationTimestamp: null
     name: ${FLUME_SERVICE_NAME}
   spec:
-    host: flume-alias.cloudapps.redhat.lan
+    host: flume-tier1.cloudapps.redhat.lan
     to:
       kind: Service
       name: ${FLUME_SERVICE_NAME}
 #
 # Role Binding
 #
-- apiVersion: v1
-  groupNames: null
-  kind: RoleBinding
-  metadata:
-    name: ${FLUME_SERVICE_NAME}_edit
-  roleRef:
-    name: edit
-  subjects:
-  - kind: ServiceAccount
-    name: ${FLUME_SERVICE_NAME}
+#- apiVersion: v1
+#  groupNames: null
+#  kind: RoleBinding
+#  metadata:
+#    name: ${FLUME_SERVICE_NAME}_edit
+#  roleRef:
+#    name: edit
+#  subjects:
+#  - kind: ServiceAccount
+#    name: ${FLUME_SERVICE_NAME}
 #
 # Service
 #
@@ -143,22 +168,18 @@ objects:
     sessionAffinity: None
     type: ClusterIP
 #
-# Template parameters to override
+# Posible Template parameters to override
 #
 parameters:
 - description: The name of the OpenShift Service exposed for the Apache Flume container.
   displayName: Apache Flume Service Name
   name: FLUME_SERVICE_NAME
-  value: flume
+  value: "flume"
 - description: Maximum amount of memory the container can use.
   displayName: Memory Limit
   name: MEMORY_LIMIT
-  value: 512Mi
-- description: The OpenShift Namespace where the Apache Flume ImageStream resides.
-  displayName: Apache Flume ImageStream Namespace
-  name: NAMESPACE
-  value: openshift
+  value: "512Mi"
 - description: Name of the ImageStreamTag to be used for the Apache Flume image.
   displayName: Apache Flume ImageStreamTag
   name: FLUME_IMAGE_STREAM_TAG
-  value: flume:latest
+  value: "flume-service:latest"
