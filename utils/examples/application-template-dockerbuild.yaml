@@ -1,0 +1,254 @@
+apiVersion: v1
+kind: Template
+labels:
+  template: application-template-dockerbuild
+metadata:
+  annotations:
+    description: This example shows how to create a simple ruby application in openshift
+      origin v3
+  creationTimestamp: null
+  name: ruby-helloworld-sample
+objects:
+- apiVersion: v1
+  kind: Service
+  metadata:
+    creationTimestamp: null
+    name: frontend
+  spec:
+    ports:
+    - name: web
+      nodePort: 0
+      port: 5432
+      protocol: TCP
+      targetPort: 8080
+    selector:
+      name: frontend
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Route
+  metadata:
+    creationTimestamp: null
+    name: route-edge
+  spec:
+    host: www.example.com
+    tls:
+      termination: edge
+    to:
+      kind: Service
+      name: frontend
+  status: {}
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    creationTimestamp: null
+    name: origin-ruby-sample
+  spec: {}
+  status:
+    dockerImageRepository: ''
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    creationTimestamp: null
+    name: ruby-22-centos7
+  spec:
+    dockerImageRepository: centos/ruby-22-centos7
+  status:
+    dockerImageRepository: ''
+- apiVersion: v1
+  kind: BuildConfig
+  metadata:
+    creationTimestamp: null
+    labels:
+      name: ruby-sample-build
+    name: ruby-sample-build
+  spec:
+    output:
+      to:
+        kind: ImageStreamTag
+        name: origin-ruby-sample:latest
+    postCommit:
+      args:
+      - bundle
+      - exec
+      - rake
+      - test
+    resources: {}
+    source:
+      git:
+        uri: git://github.com/openshift/ruby-hello-world.git
+      type: Git
+    strategy:
+      dockerStrategy:
+        env:
+        - name: EXAMPLE
+          value: sample-app
+        from:
+          kind: ImageStreamTag
+          name: ruby-22-centos7:latest
+      type: Docker
+    triggers:
+    - github:
+        secret: secret101
+      type: github
+    - generic:
+        secret: secret101
+      type: generic
+    - imageChange: {}
+      type: imageChange
+    - type: ConfigChange
+  status:
+    lastVersion: 0
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    creationTimestamp: null
+    name: frontend
+  spec:
+    replicas: 2
+    selector:
+      name: frontend
+    strategy:
+      resources: {}
+      rollingParams:
+        intervalSeconds: 1
+        timeoutSeconds: 120
+        updatePeriodSeconds: 1
+      type: Rolling
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          name: frontend
+      spec:
+        containers:
+        - capabilities: {}
+          env:
+          - name: ADMIN_USERNAME
+            value: ${ADMIN_USERNAME}
+          - name: ADMIN_PASSWORD
+            value: ${ADMIN_PASSWORD}
+          - name: MYSQL_USER
+            value: ${MYSQL_USER}
+          - name: MYSQL_PASSWORD
+            value: ${MYSQL_PASSWORD}
+          - name: MYSQL_DATABASE
+            value: ${MYSQL_DATABASE}
+          image: origin-ruby-sample
+          imagePullPolicy: IfNotPresent
+          name: ruby-helloworld
+          ports:
+          - containerPort: 8080
+            protocol: TCP
+          resources: {}
+          securityContext:
+            capabilities: {}
+            privileged: false
+          terminationMessagePath: /dev/termination-log
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        serviceAccount: ''
+    triggers:
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - ruby-helloworld
+        from:
+          kind: ImageStreamTag
+          name: origin-ruby-sample:latest
+        lastTriggeredImage: ''
+      type: ImageChange
+    - type: ConfigChange
+  status: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    creationTimestamp: null
+    name: database
+  spec:
+    ports:
+    - name: db
+      nodePort: 0
+      port: 5434
+      protocol: TCP
+      targetPort: 3306
+    selector:
+      name: database
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    creationTimestamp: null
+    name: database
+  spec:
+    replicas: 1
+    selector:
+      name: database
+    strategy:
+      resources: {}
+      type: Recreate
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          name: database
+      spec:
+        containers:
+        - capabilities: {}
+          env:
+          - name: MYSQL_USER
+            value: ${MYSQL_USER}
+          - name: MYSQL_PASSWORD
+            value: ${MYSQL_PASSWORD}
+          - name: MYSQL_DATABASE
+            value: ${MYSQL_DATABASE}
+          image: openshift/mysql-55-centos7
+          imagePullPolicy: IfNotPresent
+          name: ruby-helloworld-database
+          ports:
+          - containerPort: 3306
+            protocol: TCP
+          resources: {}
+          securityContext:
+            capabilities: {}
+            privileged: false
+          terminationMessagePath: /dev/termination-log
+          volumeMounts:
+          - mountPath: /var/lib/mysql/data
+            name: ruby-helloworld-data
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        serviceAccount: ''
+        volumes:
+        - emptyDir:
+            medium: ''
+          name: ruby-helloworld-data
+    triggers:
+    - type: ConfigChange
+  status: {}
+parameters:
+- description: administrator username
+  from: admin[A-Z0-9]{3}
+  generate: expression
+  name: ADMIN_USERNAME
+- description: administrator password
+  from: '[a-zA-Z0-9]{8}'
+  generate: expression
+  name: ADMIN_PASSWORD
+- description: database username
+  from: user[A-Z0-9]{3}
+  generate: expression
+  name: MYSQL_USER
+- description: database password
+  from: '[a-zA-Z0-9]{8}'
+  generate: expression
+  name: MYSQL_PASSWORD
+- description: database name
+  name: MYSQL_DATABASE
+  value: root
+
