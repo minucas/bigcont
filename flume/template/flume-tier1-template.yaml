@@ -94,6 +94,11 @@ objects:
         containers:
         - image: 'flume-service '
           name: "flume"
+          command: ["/opt/flume/bin/flume-ng", "agent", "-n", "agent", "-c", "/opt/conf",
+            "-f", "/opt/conf/rsyslog-tier1-test.conf", 
+            "-Dflume.root.logger=INFO,console",
+            "-Dflume.monitoring.type=http",
+            "-Dflume.monitoring.port=34545"]
           ports: 
           - containerPort: 3450
             protocol: "TCP"
@@ -109,6 +114,13 @@ objects:
           resources:
             limits:
               memory: ${MEMORY_LIMIT}
+          volumeMounts:
+          - name: config-volume
+            mountPath: /opt/conf/
+        volumes:
+          - name: config-volume
+            configMap:
+              name: rsyslog-tier1-test
     triggers:
     - type: "ConfigChange"
     - type: "ImageChange"
