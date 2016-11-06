@@ -27,11 +27,11 @@ objects:
     - name: agent
       port: 5140
       protocol: TCP
-      targetPort: 50000
+      targetPort: 5140
     - name: metric
       port: 34545
       protocol: TCP
-      targetPort: 51000
+      targetPort: 34545
     selector:
       name: ${FLUME_SERVICE_NAME}
 - apiVersion: v1
@@ -41,7 +41,7 @@ objects:
   spec:
     host: flume-tier1.cloudapps.redhat.lan
     port: 
-      targetPort: 50000
+      targetPort: 5140
     to:
       kind: Service
       name: ${FLUME_SERVICE_NAME}
@@ -94,13 +94,13 @@ objects:
         containers:
         - image: 'flume-service '
           name: "flume"
-          command: ["/opt/flume/bin/flume-ng", "agent", "-n", "agent", "-c", "/opt/conf",
+          command: ["/opt/flume/bin/flume-ng", "agent", "-n", "tier1", "-c", "/opt/conf",
             "-f", "/opt/conf/rsyslog-tier1-test.conf", 
-            "-Dflume.root.logger=INFO,console",
+            "-Dflume.root.logger=DEBUG,console",
             "-Dflume.monitoring.type=http",
             "-Dflume.monitoring.port=34545"]
           ports: 
-          - containerPort: 3450
+          - containerPort: 5140
             protocol: "TCP"
           - containerPort: 34545
             protocol: "TCP"
