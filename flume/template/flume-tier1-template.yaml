@@ -92,7 +92,7 @@ objects:
         name: ${FLUME_SERVICE_NAME}
       spec:
         containers:
-        - image: 'flume-service '
+        - image: 'flume-service'
           name: "flume"
           command: ["/opt/flume/bin/flume-ng", "agent", "-n", "tier1", "-c", "/opt/conf",
             "-f", "/opt/conf/rsyslog-tier1-test.conf", 
