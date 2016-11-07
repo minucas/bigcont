@@ -2,68 +2,119 @@ apiVersion: v1
 kind: Template
 labels:
   application: zookeeperapp
-  createdby: keeper-quorum-template
-message: This is a simple Apache Flume template for testing
+  createdby: zookeeper-quorum-template
+message: This is a simple Apache Zookeeper template for testing
 metadata:
   annotations:
-    description: 'This tier1 Apache Flume template is an example of Flume
-      with syslog source and file_role sink.
+    description: 'Apache Zookeeper Quorum with three.
 
       WARNING: Only use this template for testing'
-    tags: bigdata,flume-test
-  name: flume-syslog-to-file
+    tags: bigdata,zookeeper-test
+  name: zookeeper-quorum
 #
-# OpenShift objects created by this template
+# ZK-1 Service
 #
 objects:
 - apiVersion: v1
   kind: Service
   metadata:
+    name: ${ZK1_SERVICE_NAME}
     annotations:
       description: Exposes and load balances the application pods
-    name: ${FLUME_SERVICE_NAME}
+    labels:
+      name: ${ZK1_SERVICE_NAME}
   spec:
     ports:
-    - name: agent
-      port: 5140
+    - name: client
+      port: 2181
       protocol: TCP
-      targetPort: 5140
-    - name: metric
-      port: 34545
+      targetPort: 2181
+    - name: followers
+      port: 2888
       protocol: TCP
-      targetPort: 34545
+      targetPort: 2888
+    - name: election
+      port: 3888
+      protocol: TCP
+      targetPort: 3888
     selector:
-      name: ${FLUME_SERVICE_NAME}
+      server-id: '1'
+#
+# ZK-2 Service
+#
+objects:
 - apiVersion: v1
-  kind: Route
+  kind: Service
   metadata:
-    name: ${FLUME_SERVICE_NAME}
+    name: ${ZK2_SERVICE_NAME}
+    annotations:
+      description: Exposes and load balances the application pods
+    labels:
+      name: ${ZK2_SERVICE_NAME}
   spec:
-    host: flume-tier1.cloudapps.redhat.lan
-    port: 
-      targetPort: 5140
-    to:
-      kind: Service
-      name: ${FLUME_SERVICE_NAME}
+    ports:
+    - name: client
+      port: 2181
+      protocol: TCP
+      targetPort: 2181
+    - name: followers
+      port: 2888
+      protocol: TCP
+      targetPort: 2888
+    - name: election
+      port: 3888
+      protocol: TCP
+      targetPort: 3888
+    selector:
+      server-id: '2'
+#
+# ZK-3 Service
+#
+objects:
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: ${ZK3_SERVICE_NAME}
+    annotations:
+      description: Exposes and load balances the application pods
+    labels:
+      name: ${ZK3_SERVICE_NAME}
+  spec:
+    ports:
+    - name: client
+      port: 2181
+      protocol: TCP
+      targetPort: 2181
+    - name: followers
+      port: 2888
+      protocol: TCP
+      targetPort: 2888
+    - name: election
+      port: 3888
+      protocol: TCP
+      targetPort: 3888
+    selector:
+      server-id: '3'
+      name: ${ZK_SERVICE_NAME}
 - apiVersion: v1
   kind: ImageStream
   metadata:
     annotations:
       description: Keeps track of changes in the application image
-    name: "flume-service"
+    name: "zookeeper-service"
 - apiVersion: v1
   kind: BuildConfig
   metadata:
     annotations:
       description: Defines how to build the application
-    name: flume-build
+    name: zookeeper-build
   spec:
     source:
       type: "Git"
       git:
         uri: "https://github.com/bigcontainer/bigcont"
-        ref: "flume-service"
-      contextDir: "flume"
+        ref: "zookeeper-service"
+      contextDir: "zookeeper"
     strategy:
       type: Docker
       dockerStrategy:
@@ -71,7 +122,7 @@ objects:
     output:
       to:
         kind: "ImageStreamTag" 
-        name: ${FLUME_IMAGE_STREAM_TAG}
+        name: ${ZK_IMAGE_STREAM_TAG}
     triggers:
       - type: "ImageChange"
       - type: "ConfigChange"
@@ -80,30 +131,29 @@ objects:
   metadata:
     annotations:
       description: Defines how to deploy the application server
-    name: ${FLUME_SERVICE_NAME}
+    name: ${ZK_SERVICE_NAME}
   spec:
     replicas: 1
     selector:
-      name: ${FLUME_SERVICE_NAME}
+      name: ${ZK_SERVICE_NAME}
     template:
       metadata:
         labels:
-          name: ${FLUME_SERVICE_NAME}
-        name: ${FLUME_SERVICE_NAME}
+          name: ${ZK_SERVICE_NAME}
+        name: ${ZK_SERVICE_NAME}
       spec:
         containers:
-        - image: 'flume-service '
-          name: "flume"
+        - image: 'zookeeper-service'
+          name: "zk-service-1"
           command: ["/opt/flume/bin/flume-ng", "agent", "-n", "tier1", "-c", "/opt/conf",
-            "-f", "/opt/conf/rsyslog-tier1-test.conf", 
-            "-Dflume.root.logger=DEBUG,console",
-            "-Dflume.monitoring.type=http",
             "-Dflume.monitoring.port=34545"]
           ports: 
-          - containerPort: 5140
-            protocol: "TCP"
-          - containerPort: 34545
-            protocol: "TCP"
+          - containerPort: 2181
+            protocol: TCP
+          - containerPort: 2888
+            protocol: TCP
+          - containerPort: 3888
+            protocol: TCP
           readinessProbe:
             httpGet:
               path: /metrics
@@ -117,10 +167,66 @@ objects:
           volumeMounts:
           - name: config-volume
             mountPath: /opt/conf/
-        volumes:
+          volumes:
+            - name: config-volume
+              configMap:
+                name: zk-1-config
+        - image: 'zookeeper-service'
+          name: "zk-service-2"
+          command: ["/opt/flume/bin/flume-ng", "agent", "-n", "tier1", "-c", "/opt/conf",
+            "-Dflume.monitoring.port=34545"]
+          ports: 
+          - containerPort: 2181
+            protocol: TCP
+          - containerPort: 2888
+            protocol: TCP
+          - containerPort: 3888
+            protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /metrics
+              port: 34545
+            initialDelaySeconds: 15
+            timeoutSeconds: 1
+          imagePullPolicy: IfNotPresent
+          resources:
+            limits:
+              memory: ${MEMORY_LIMIT}
+          volumeMounts:
           - name: config-volume
-            configMap:
-              name: rsyslog-tier1-test
+            mountPath: /opt/conf/
+          volumes:
+            - name: config-volume
+              configMap:
+                name: zk-2-config
+        - image: 'zookeeper-service'
+          name: "zk-service-3"
+          command: ["/opt/flume/bin/flume-ng", "agent", "-n", "tier1", "-c", "/opt/conf",
+            "-Dflume.monitoring.port=34545"]
+          ports: 
+          - containerPort: 2181
+            protocol: TCP
+          - containerPort: 2888
+            protocol: TCP
+          - containerPort: 3888
+            protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /metrics
+              port: 34545
+            initialDelaySeconds: 15
+            timeoutSeconds: 1
+          imagePullPolicy: IfNotPresent
+          resources:
+            limits:
+              memory: ${MEMORY_LIMIT}
+          volumeMounts:
+          - name: config-volume
+            mountPath: /opt/conf/
+          volumes:
+            - name: config-volume
+              configMap:
+                name: zk-3-config
     triggers:
     - type: "ConfigChange"
     - type: "ImageChange"
@@ -130,7 +236,7 @@ objects:
           - "flume"
         from:
           kind: ImageStreamTag
-          name: ${FLUME_IMAGE_STREAM_TAG}
+          name: ${ZK_IMAGE_STREAM_TAG}
     strategy:
       type: Recreate
     paused: false
@@ -139,15 +245,23 @@ objects:
 # Posible Template parameters to override
 #
 parameters:
-- description: The name of the OpenShift Service exposed for the Apache Flume container.
+- description: The name of the OpenShift Service exposed for Zookeeper Server-1
   displayName: Apache Flume Service Name
-  name: FLUME_SERVICE_NAME
-  value: "flume"
+  name: ZK1_SERVICE_NAME
+  value: "zookeeper-1"
+- description: The name of the OpenShift Service exposed for Zookeeper Server-2
+  displayName: Apache Flume Service Name
+  name: ZK2_SERVICE_NAME
+  value: "zookeeper-2"
+- description: The name of the OpenShift Service exposed for Zookeeper Server-3
+  displayName: Apache Flume Service Name
+  name: ZK3_SERVICE_NAME
+  value: "zookeeper-3"
 - description: Maximum amount of memory the container can use.
   displayName: Memory Limit
   name: MEMORY_LIMIT
   value: "512Mi"
 - description: Name of the ImageStreamTag to be used for the Apache Flume image.
   displayName: Apache Flume ImageStreamTag
-  name: FLUME_IMAGE_STREAM_TAG
-  value: "flume-service:latest"
+  name: ZK_IMAGE_STREAM_TAG
+  value: "zookeeper-service:latest"
