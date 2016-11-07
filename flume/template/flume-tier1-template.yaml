@@ -1,0 +1,153 @@
+apiVersion: v1
+kind: Template
+labels:
+  application: flumeapp
+  createdby: flume-testing-template
+message: This is a simple Apache Flume template for testing
+metadata:
+  annotations:
+    description: 'This tier1 Apache Flume template is an example of Flume
+      with syslog source and file_role sink.
+
+      WARNING: Only use this template for testing'
+    tags: bigdata,flume-test
+  name: flume-syslog-to-file
+#
+# OpenShift objects created by this template
+#
+objects:
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      description: Exposes and load balances the application pods
+    name: ${FLUME_SERVICE_NAME}
+  spec:
+    ports:
+    - name: agent
+      port: 5140
+      protocol: TCP
+      targetPort: 5140
+    - name: metric
+      port: 34545
+      protocol: TCP
+      targetPort: 34545
+    selector:
+      name: ${FLUME_SERVICE_NAME}
+- apiVersion: v1
+  kind: Route
+  metadata:
+    name: ${FLUME_SERVICE_NAME}
+  spec:
+    host: flume-tier1.cloudapps.redhat.lan
+    port: 
+      targetPort: 5140
+    to:
+      kind: Service
+      name: ${FLUME_SERVICE_NAME}
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    annotations:
+      description: Keeps track of changes in the application image
+    name: "flume-service"
+- apiVersion: v1
+  kind: BuildConfig
+  metadata:
+    annotations:
+      description: Defines how to build the application
+    name: flume-build
+  spec:
+    source:
+      type: "Git"
+      git:
+        uri: "https://github.com/bigcontainer/bigcont"
+        ref: "flume-service"
+      contextDir: "flume"
+    strategy:
+      type: Docker
+      dockerStrategy:
+        dockerfilePath: "Dockerfile"
+    output:
+      to:
+        kind: "ImageStreamTag" 
+        name: ${FLUME_IMAGE_STREAM_TAG}
+    triggers:
+      - type: "ImageChange"
+      - type: "ConfigChange"
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    annotations:
+      description: Defines how to deploy the application server
+    name: ${FLUME_SERVICE_NAME}
+  spec:
+    replicas: 1
+    selector:
+      name: ${FLUME_SERVICE_NAME}
+    template:
+      metadata:
+        labels:
+          name: ${FLUME_SERVICE_NAME}
+        name: ${FLUME_SERVICE_NAME}
+      spec:
+        containers:
+        - image: 'flume-service '
+          name: "flume"
+          command: ["/opt/flume/bin/flume-ng", "agent", "-n", "tier1", "-c", "/opt/conf",
+            "-f", "/opt/conf/rsyslog-tier1-test.conf", 
+            "-Dflume.root.logger=DEBUG,console",
+            "-Dflume.monitoring.type=http",
+            "-Dflume.monitoring.port=34545"]
+          ports: 
+          - containerPort: 5140
+            protocol: "TCP"
+          - containerPort: 34545
+            protocol: "TCP"
+          readinessProbe:
+            httpGet:
+              path: /metrics
+              port: 34545
+            initialDelaySeconds: 15
+            timeoutSeconds: 1
+          imagePullPolicy: IfNotPresent
+          resources:
+            limits:
+              memory: ${MEMORY_LIMIT}
+          volumeMounts:
+          - name: config-volume
+            mountPath: /opt/conf/
+        volumes:
+          - name: config-volume
+            configMap:
+              name: rsyslog-tier1-test
+    triggers:
+    - type: "ConfigChange"
+    - type: "ImageChange"
+      imageChangeParams:
+        automatic: true
+        containerNames:
+          - "flume"
+        from:
+          kind: ImageStreamTag
+          name: ${FLUME_IMAGE_STREAM_TAG}
+    strategy:
+      type: Recreate
+    paused: false
+    revisionHistoryLimit: 2
+#
+# Posible Template parameters to override
+#
+parameters:
+- description: The name of the OpenShift Service exposed for the Apache Flume container.
+  displayName: Apache Flume Service Name
+  name: FLUME_SERVICE_NAME
+  value: "flume"
+- description: Maximum amount of memory the container can use.
+  displayName: Memory Limit
+  name: MEMORY_LIMIT
+  value: "512Mi"
+- description: Name of the ImageStreamTag to be used for the Apache Flume image.
+  displayName: Apache Flume ImageStreamTag
+  name: FLUME_IMAGE_STREAM_TAG
+  value: "flume-service:latest"
