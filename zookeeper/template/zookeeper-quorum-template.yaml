@@ -1,8 +1,8 @@
 apiVersion: v1
 kind: Template
 labels:
-  application: flumeapp
-  createdby: flume-testing-template
+  application: zookeeperapp
+  createdby: keeper-quorum-template
 message: This is a simple Apache Flume template for testing
 metadata:
   annotations:
