@@ -32,6 +32,21 @@ listen stats :{{.StatsPort}}
     stats auth {{.StatsUser}}:{{.StatsPassword}}
 {{ end }}
 
+##########################################################################
+# syslog TCP - Frontend
+#
+# Experimental implemententation config of syslog TCP ingress
+##########################################################################
+
+frontend syslog
+  bind :5140
+  mode tcp
+  option tcplog
+  default_backend be_syslog
+  use_backend be_syslog_%[map(/var/lib/haproxy/conf/os_tcp_be.map)] 
+
+##########################################################################
+
 frontend public
   bind :80
   mode http
@@ -190,6 +205,22 @@ backend be_tcp_{{$cfgIdx}}
             {{ end }}
 
             {{ if eq $cfg.TLSTermination "reencrypt" }}
+##########################################################################
+# syslog TCP - backend
+#
+# Experimental implemententation config of syslog TCP ingress
+##########################################################################
+backend be_syslog_{{$cfgIdx}}
+    balance source
+    hash-type consistent
+    timeout check 5000ms
+                {{ range $idx, $endpoint := endpointsForAlias $cfg $serviceUnit  }}
+    server {{$endpoint.ID}} {{$endpoint.IP}}:{{$endpoint.Port}} check inter 5000ms 
+                {{ end  }}
+            {{ end  }}
+
+            {{ if eq $cfg.TLSTermination "reencrypt"  }}
+##########################################################################
 backend be_secure_{{$cfgIdx}}
   mode http
   option redispatch
@@ -204,6 +235,7 @@ backend be_secure_{{$cfgIdx}}
 {{ end }}{{/* $serviceUnit */}}
 
 {{ end }}{{/* end haproxy config template */}}
+
 
 {{/*--------------------------------- END OF HAPROXY CONFIG, BELOW ARE MAPPING FILES ------------------------*/}}
 {{/*
@@ -277,3 +309,4 @@ backend be_secure_{{$cfgIdx}}
 {{     end }}
 {{   end }}
 {{ end }}{{/* end reencrypt passthrough map template */}}
+

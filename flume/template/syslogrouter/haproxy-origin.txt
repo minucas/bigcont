@@ -10,12 +10,14 @@ The problem that the OpenShift router is solving is that you only have one IP
 address and need to somehow multiplex that amongst all of your pods
 (applications).  In HTTP and TLS with SNI, there's a way to determine the
 "destination host" that the user was looking for, so that HAProxy can route the
-request to the appropriate pod.  With just a generic TCP service, we
-can't do do this (multiplex requests for different pods) since we don't know
-which host the user is looking for (unless the protocol allows it and HAProxy
-is patched to handle it).
+request to the appropriate pod (because HTTP is application Layer 7).  
+With just a generic TCP service, we can't do do this (multiplex requests for 
+different pods) since we don't know which host the user is looking for 
+(unless the protocol allows it and HAProxy is patched to handle it). Because
+TCP layer is Transport (Layer 4).
 
-Note: Reference custom router https://github.com/marquies/origin-mqtt-haproxy
+Reference: custom router https://github.com/marquies/origin-mqtt-haproxy
+Reference: https://github.com/openshift/origin/issues/9690
 
 ####### Original configuration ########
 global
