@@ -6,9 +6,7 @@ labels:
 message: This is a simple Apache Zookeeper template for testing
 metadata:
   annotations:
-    description: 'Apache Zookeeper Quorum with three.
-
-      WARNING: Only use this template for testing'
+    description: 'Apache Zookeeper Quorum Template'
     tags: bigdata,zookeeper-test
   name: zookeeper-quorum
 #
@@ -113,7 +111,7 @@ objects:
       git:
         uri: "https://github.com/bigcontainer/bigcont"
         ref: "zookeeper-service"
-      contextDir: "zookeeper"
+      contextDir: "zookeeper/template"
     strategy:
       type: Docker
       dockerStrategy:
@@ -142,90 +140,87 @@ objects:
         name: ${ZK_SERVICE_NAME}
       spec:
         containers:
-        - image: 'zookeeper-service'
-          name: "zk-service-1"
-          command: ["/opt/flume/bin/flume-ng", "agent", "-n", "tier1", "-c", "/opt/conf",
-            "-Dflume.monitoring.port=34545"]
-          ports: 
-          - containerPort: 2181
-            protocol: TCP
-          - containerPort: 2888
-            protocol: TCP
-          - containerPort: 3888
-            protocol: TCP
-          readinessProbe:
-            httpGet:
-              path: /metrics
-              port: 34545
-            initialDelaySeconds: 15
-            timeoutSeconds: 1
-          imagePullPolicy: IfNotPresent
-          resources:
+          - name: "zk-service-1"
+            image: 'zookeeper-service'
+            command: ["/opt/zookeeper/docker-entrypoint.sh"]
+            ports: 
+            - containerPort: 2181
+              protocol: TCP
+            - containerPort: 2888
+              protocol: TCP
+            - containerPort: 3888
+              protocol: TCP
+            readinessProbe:
+              httpGet:
+                path: /metrics
+                port: 34545
+              initialDelaySeconds: 15
+              timeoutSeconds: 1
+            imagePullPolicy: IfNotPresent
+            resources:
             limits:
               memory: ${MEMORY_LIMIT}
-          volumeMounts:
-          - name: config-volume
-            mountPath: /opt/conf/
-          volumes:
-            - name: config-volume
-              configMap:
-                name: zk-1-config
-        - image: 'zookeeper-service'
-          name: "zk-service-2"
-          command: ["/opt/flume/bin/flume-ng", "agent", "-n", "tier1", "-c", "/opt/conf",
-            "-Dflume.monitoring.port=34545"]
-          ports: 
-          - containerPort: 2181
-            protocol: TCP
-          - containerPort: 2888
-            protocol: TCP
-          - containerPort: 3888
-            protocol: TCP
-          readinessProbe:
-            httpGet:
-              path: /metrics
-              port: 34545
-            initialDelaySeconds: 15
-            timeoutSeconds: 1
-          imagePullPolicy: IfNotPresent
-          resources:
+            volumeMounts:
+              - name: config-volume
+                mountPath: /opt/conf/
+            volumes:
+              - name: config-volume
+                configMap:
+                  name: zk-1-config
+          - name: "zk-service-2"
+            image: 'zookeeper-service'
+            command: ["/opt/zookeeper/docker-entrypoint.sh"]
+            ports: 
+            - containerPort: 2181
+              protocol: TCP
+            - containerPort: 2888
+              protocol: TCP
+            - containerPort: 3888
+              protocol: TCP
+            readinessProbe:
+              httpGet:
+                path: /metrics
+                port: 34545
+              initialDelaySeconds: 15
+              timeoutSeconds: 1
+            imagePullPolicy: IfNotPresent
+            resources:
             limits:
               memory: ${MEMORY_LIMIT}
-          volumeMounts:
-          - name: config-volume
-            mountPath: /opt/conf/
-          volumes:
-            - name: config-volume
-              configMap:
-                name: zk-2-config
-        - image: 'zookeeper-service'
-          name: "zk-service-3"
-          command: ["/opt/flume/bin/flume-ng", "agent", "-n", "tier1", "-c", "/opt/conf",
-            "-Dflume.monitoring.port=34545"]
-          ports: 
-          - containerPort: 2181
-            protocol: TCP
-          - containerPort: 2888
-            protocol: TCP
-          - containerPort: 3888
-            protocol: TCP
-          readinessProbe:
-            httpGet:
-              path: /metrics
-              port: 34545
-            initialDelaySeconds: 15
-            timeoutSeconds: 1
-          imagePullPolicy: IfNotPresent
-          resources:
+            volumeMounts:
+              - name: config-volume
+                mountPath: /opt/conf/
+            volumes:
+              - name: config-volume
+                configMap:
+                  name: zk-2-config
+          - name: "zk-service-3"
+            image: 'zookeeper-service'
+            command: ["/opt/zookeeper/docker-entrypoint.sh"]
+            ports: 
+            - containerPort: 2181
+              protocol: TCP
+            - containerPort: 2888
+              protocol: TCP
+            - containerPort: 3888
+              protocol: TCP
+            readinessProbe:
+              httpGet:
+                path: /metrics
+                port: 34545
+              initialDelaySeconds: 15
+              timeoutSeconds: 1
+            imagePullPolicy: IfNotPresent
+            resources:
             limits:
               memory: ${MEMORY_LIMIT}
-          volumeMounts:
-          - name: config-volume
-            mountPath: /opt/conf/
-          volumes:
-            - name: config-volume
-              configMap:
-                name: zk-3-config
+            volumeMounts:
+              - name: config-volume
+                mountPath: /opt/conf/
+            volumes:
+              - name: config-volume
+                configMap:
+                  name: zk-3-config
     triggers:
     - type: "ConfigChange"
     - type: "ImageChange"
@@ -244,6 +239,10 @@ objects:
 # Posible Template parameters to override
 #
 parameters:
+- description: The name of the OpenShift Service exposed for Zookeeper Server-1
+  displayName: Apache Flume Service Name
+  name: ZK_SERVICE_NAME
+  value: "zookeeper-service"
 - description: The name of the OpenShift Service exposed for Zookeeper Server-1
   displayName: Apache Flume Service Name
   name: ZK1_SERVICE_NAME
