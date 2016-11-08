@@ -95,7 +95,6 @@ objects:
       targetPort: 3888
     selector:
       server-id: '3'
-      name: ${ZK_SERVICE_NAME}
 - apiVersion: v1
   kind: ImageStream
   metadata:
