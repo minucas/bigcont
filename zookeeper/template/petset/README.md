@@ -1,4 +1,4 @@
-# Note: Extrated from https://github.com/kubernetes/contrib
+Note: project from https://github.com/kubernetes/contrib
 
 # Zookeeper
 
