@@ -140,9 +140,9 @@ objects:
         name: ${ZK_SERVICE_NAME}
       spec:
         containers:
-          - name: "zk-service-1"
-            image: 'zookeeper-service'
-            command: ["/opt/zookeeper/docker-entrypoint.sh"]
+          - image: 'zookeeper-service'
+            name: "zk-service-1"
+            command: ["/opt/zookeeper/bin/zkServer.sh", "start-foreground"]
             ports: 
             - containerPort: 2181
               protocol: TCP
@@ -158,18 +158,18 @@ objects:
               timeoutSeconds: 1
             imagePullPolicy: IfNotPresent
             resources:
-            limits:
-              memory: ${MEMORY_LIMIT}
-            volumeMounts:
+              limits:
+                memory: ${MEMORY_LIMIT}
+              volumeMounts:
               - name: config-volume
                 mountPath: /opt/conf/
-            volumes:
+              volumes:
               - name: config-volume
                 configMap:
                   name: zk-1-config
-          - name: "zk-service-2"
-            image: 'zookeeper-service'
-            command: ["/opt/zookeeper/docker-entrypoint.sh"]
+          - image: 'zookeeper-service'
+            name: "zk-service-2"
+            command: ["/opt/zookeeper/bin/zkServer.sh", "start-foreground"]
             ports: 
             - containerPort: 2181
               protocol: TCP
@@ -185,18 +185,18 @@ objects:
               timeoutSeconds: 1
             imagePullPolicy: IfNotPresent
             resources:
-            limits:
-              memory: ${MEMORY_LIMIT}
-            volumeMounts:
+              limits:
+                memory: ${MEMORY_LIMIT}
+              volumeMounts:
               - name: config-volume
                 mountPath: /opt/conf/
-            volumes:
+              volumes:
               - name: config-volume
                 configMap:
                   name: zk-2-config
-          - name: "zk-service-3"
-            image: 'zookeeper-service'
-            command: ["/opt/zookeeper/docker-entrypoint.sh"]
+          - image: 'zookeeper-service'
+            name: "zk-service-3"
+            command: ["/opt/zookeeper/bin/zkServer.sh", "start-foreground"]
             ports: 
             - containerPort: 2181
               protocol: TCP
@@ -212,12 +212,12 @@ objects:
               timeoutSeconds: 1
             imagePullPolicy: IfNotPresent
             resources:
-            limits:
-              memory: ${MEMORY_LIMIT}
-            volumeMounts:
+              limits:
+                memory: ${MEMORY_LIMIT}
+              volumeMounts:
               - name: config-volume
                 mountPath: /opt/conf/
-            volumes:
+              volumes:
               - name: config-volume
                 configMap:
                   name: zk-3-config
@@ -239,27 +239,27 @@ objects:
 # Posible Template parameters to override
 #
 parameters:
-- description: The name of the OpenShift Service exposed for Zookeeper Server-1
-  displayName: Apache Flume Service Name
+- description: The name of the OpenShift Service exposed for Zookeeper BuildConfig
+  displayName: Apache Zookeeper Service Name BuildConfig
   name: ZK_SERVICE_NAME
   value: "zookeeper-service"
 - description: The name of the OpenShift Service exposed for Zookeeper Server-1
-  displayName: Apache Flume Service Name
+  displayName: Apache Zookeeper Service Name
   name: ZK1_SERVICE_NAME
   value: "zookeeper-1"
 - description: The name of the OpenShift Service exposed for Zookeeper Server-2
-  displayName: Apache Flume Service Name
+  displayName: Apache Zookeeper Service Name
   name: ZK2_SERVICE_NAME
   value: "zookeeper-2"
 - description: The name of the OpenShift Service exposed for Zookeeper Server-3
-  displayName: Apache Flume Service Name
+  displayName: Apache Zookeeper Service Name
   name: ZK3_SERVICE_NAME
   value: "zookeeper-3"
 - description: Maximum amount of memory the container can use.
   displayName: Memory Limit
   name: MEMORY_LIMIT
   value: "512Mi"
-- description: Name of the ImageStreamTag to be used for the Apache Flume image.
-  displayName: Apache Flume ImageStreamTag
+- description: Name of the ImageStreamTag to be used for the Apache Zookeeper image.
+  displayName: Apache Zookeeper ImageStreamTag
   name: ZK_IMAGE_STREAM_TAG
   value: "zookeeper-service:latest"

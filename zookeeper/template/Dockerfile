@@ -30,12 +30,12 @@ RUN \
   curl -L https://www.apache.org/dist/zookeeper/stable/zookeeper-${ZK_VERSION}.tar.gz.md5 -o /tmp/zookeeper-${ZK_VERSION}.tar.gz.md5 
 
 # Verify download
-RUN \
-  cd /tmp && \ 
-  md5sum -c zookeeper-${ZK_VERSION}.tar.gz.md5 && \
-  cd - && \ 
-  gpg --import /tmp/KEYS && \
-  gpg --verify /tmp/zookeeper-${ZK_VERSION}.tar.gz.asc 
+#RUN \
+#  cd /tmp && \ 
+#  md5sum -c zookeeper-${ZK_VERSION}.tar.gz.md5 && \
+#  cd - && \ 
+#  gpg --import /tmp/KEYS && \
+#  gpg --verify /tmp/zookeeper-${ZK_VERSION}.tar.gz.asc 
 
 # Install 
 RUN \
@@ -47,13 +47,10 @@ RUN \
   chmod g+w /opt/zookeeper/conf && \
   rm -f /tmp/zookeeper-*
 
-# Configure
-COPY \
-  zoo-service.cfg /opt/zookeeper/conf/zoo.cfg 
-  
-COPY \
-  docker-entrypoint.sh /opt/zookeeper/
-
 EXPOSE 2181 2888 3888    
-  
+
+COPY \
+    docker-entrypoint.sh /opt/zookeeper/
+
 ENTRYPOINT ["/opt/zookeeper/docker-entrypoint.sh"]
+
