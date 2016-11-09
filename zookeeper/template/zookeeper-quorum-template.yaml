@@ -37,107 +37,21 @@ objects:
       targetPort: 3888
     selector:
       server-id: '1'
-#
-# ZK-2 Service
-#
-objects:
-- apiVersion: v1
-  kind: Service
-  metadata:
-    name: ${ZK2_SERVICE_NAME}
-    annotations:
-      description: Exposes and load balances the application pods
-    labels:
-      name: ${ZK2_SERVICE_NAME}
-  spec:
-    ports:
-    - name: client
-      port: 2181
-      protocol: TCP
-      targetPort: 2181
-    - name: followers
-      port: 2888
-      protocol: TCP
-      targetPort: 2888
-    - name: election
-      port: 3888
-      protocol: TCP
-      targetPort: 3888
-    selector:
-      server-id: '2'
-#
-# ZK-3 Service
-#
-objects:
-- apiVersion: v1
-  kind: Service
-  metadata:
-    name: ${ZK3_SERVICE_NAME}
-    annotations:
-      description: Exposes and load balances the application pods
-    labels:
-      name: ${ZK3_SERVICE_NAME}
-  spec:
-    ports:
-    - name: client
-      port: 2181
-      protocol: TCP
-      targetPort: 2181
-    - name: followers
-      port: 2888
-      protocol: TCP
-      targetPort: 2888
-    - name: election
-      port: 3888
-      protocol: TCP
-      targetPort: 3888
-    selector:
-      server-id: '3'
-- apiVersion: v1
-  kind: ImageStream
-  metadata:
-    annotations:
-      description: Keeps track of changes in the application image
-    name: "zookeeper-service"
-- apiVersion: v1
-  kind: BuildConfig
-  metadata:
-    annotations:
-      description: Defines how to build the application
-    name: zookeeper-build
-  spec:
-    source:
-      type: "Git"
-      git:
-        uri: "https://github.com/bigcontainer/bigcont"
-        ref: "zookeeper-service"
-      contextDir: "zookeeper/template"
-    strategy:
-      type: Docker
-      dockerStrategy:
-        dockerfilePath: "Dockerfile"
-    output:
-      to:
-        kind: "ImageStreamTag" 
-        name: ${ZK_IMAGE_STREAM_TAG}
-    triggers:
-      - type: "ImageChange"
-      - type: "ConfigChange"
 - apiVersion: v1
   kind: DeploymentConfig
   metadata:
     annotations:
       description: Defines how to deploy the application server
-    name: ${ZK_SERVICE_NAME}
+    name: ${ZK1_SERVICE_NAME}
   spec:
     replicas: 1
     selector:
-      name: ${ZK_SERVICE_NAME}
+      name: ${ZK1_SERVICE_NAME}
     template:
       metadata:
         labels:
-          name: ${ZK_SERVICE_NAME}
-        name: ${ZK_SERVICE_NAME}
+          name: ${ZK1_SERVICE_NAME}
+        name: ${ZK1_SERVICE_NAME}
       spec:
         containers:
           - image: 'zookeeper-service'
@@ -167,6 +81,64 @@ objects:
               - name: config-volume
                 configMap:
                   name: zk-1-config
+    triggers:
+    - type: "ConfigChange"
+    - type: "ImageChange"
+      imageChangeParams:
+        automatic: true
+        containerNames:
+          - "zookeeper"
+        from:
+          kind: ImageStreamTag
+          name: ${ZK_IMAGE_STREAM_TAG}
+    strategy:
+      type: Recreate
+    paused: false
+    revisionHistoryLimit: 2
+#
+# ZK-2 Service
+#
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: ${ZK2_SERVICE_NAME}
+    annotations:
+      description: Exposes and load balances the application pods
+    labels:
+      name: ${ZK2_SERVICE_NAME}
+  spec:
+    ports:
+    - name: client
+      port: 2181
+      protocol: TCP
+      targetPort: 2181
+    - name: followers
+      port: 2888
+      protocol: TCP
+      targetPort: 2888
+    - name: election
+      port: 3888
+      protocol: TCP
+      targetPort: 3888
+    selector:
+      server-id: '2'
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    annotations:
+      description: Defines how to deploy the application server
+    name: ${ZK2_SERVICE_NAME}
+  spec:
+    replicas: 1
+    selector:
+      name: ${ZK2_SERVICE_NAME}
+    template:
+      metadata:
+        labels:
+          name: ${ZK2_SERVICE_NAME}
+        name: ${ZK2_SERVICE_NAME}
+      spec:
+        containers:
           - image: 'zookeeper-service'
             name: "zk-service-2"
             command: ["/opt/zookeeper/bin/zkServer.sh", "start-foreground"]
@@ -194,6 +166,64 @@ objects:
               - name: config-volume
                 configMap:
                   name: zk-2-config
+    triggers:
+    - type: "ConfigChange"
+    - type: "ImageChange"
+      imageChangeParams:
+        automatic: true
+        containerNames:
+          - "zookeeper"
+        from:
+          kind: ImageStreamTag
+          name: ${ZK_IMAGE_STREAM_TAG}
+    strategy:
+      type: Recreate
+    paused: false
+    revisionHistoryLimit: 2
+#
+# ZK-3 Service
+#
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: ${ZK3_SERVICE_NAME}
+    annotations:
+      description: Exposes and load balances the application pods
+    labels:
+      name: ${ZK3_SERVICE_NAME}
+  spec:
+    ports:
+    - name: client
+      port: 2181
+      protocol: TCP
+      targetPort: 2181
+    - name: followers
+      port: 2888
+      protocol: TCP
+      targetPort: 2888
+    - name: election
+      port: 3888
+      protocol: TCP
+      targetPort: 3888
+    selector:
+      server-id: '3'
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    annotations:
+      description: Defines how to deploy the application server
+    name: ${ZK3_SERVICE_NAME}
+  spec:
+    replicas: 1
+    selector:
+      name: ${ZK3_SERVICE_NAME}
+    template:
+      metadata:
+        labels:
+          name: ${ZK3_SERVICE_NAME}
+        name: ${ZK3_SERVICE_NAME}
+      spec:
+        containers:
           - image: 'zookeeper-service'
             name: "zk-service-3"
             command: ["/opt/zookeeper/bin/zkServer.sh", "start-foreground"]
@@ -227,7 +257,7 @@ objects:
       imageChangeParams:
         automatic: true
         containerNames:
-          - "flume"
+          - "zookeeper"
         from:
           kind: ImageStreamTag
           name: ${ZK_IMAGE_STREAM_TAG}
@@ -235,14 +265,42 @@ objects:
       type: Recreate
     paused: false
     revisionHistoryLimit: 2
+
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    annotations:
+      description: Keeps track of changes in the application image
+    name: "zookeeper-service"
+
+- apiVersion: v1
+  kind: BuildConfig
+  metadata:
+    annotations:
+      description: Defines how to build the application
+    name: zookeeper-build
+  spec:
+    source:
+      type: "Git"
+      git:
+        uri: "https://github.com/bigcontainer/bigcont"
+        ref: "zookeeper-service"
+      contextDir: "zookeeper/template"
+    strategy:
+      type: Docker
+      dockerStrategy:
+        dockerfilePath: "Dockerfile"
+    output:
+      to:
+        kind: "ImageStreamTag" 
+        name: ${ZK_IMAGE_STREAM_TAG}
+    triggers:
+      - type: "ImageChange"
+      - type: "ConfigChange"
 #
 # Posible Template parameters to override
 #
 parameters:
-- description: The name of the OpenShift Service exposed for Zookeeper BuildConfig
-  displayName: Apache Zookeeper Service Name BuildConfig
-  name: ZK_SERVICE_NAME
-  value: "zookeeper-service"
 - description: The name of the OpenShift Service exposed for Zookeeper Server-1
   displayName: Apache Zookeeper Service Name
   name: ZK1_SERVICE_NAME
