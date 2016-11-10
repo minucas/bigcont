@@ -78,7 +78,7 @@ The table is based on the following workflow:
 | Tool | Overview | Docker | OpenShift manually | Template |
 | :--  |:--------:|:------:|:------------------:|:--------:|
 |[Apache Flume](flume/README.md)| Done | Done | Done | Done |
-|[Apache Zookeeper](zookeeper/README.md)| Done | Done | Done | TODO |
+|[Apache Zookeeper](zookeeper/README.md)| Done | Done | Done | Done |
 |[MongoDB](mongodb/README.md)| Done | Done | TODO | TODO |
 |[TensorFlow](tensorflow/README.md)| Done | TODO | TODO | TODO |
 |[LogStash](logstash/README.md)| Done | TODO | TODO | TODO |
