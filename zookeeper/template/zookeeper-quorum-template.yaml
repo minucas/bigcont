@@ -56,6 +56,10 @@ objects:
     labels:
       name: ${ZK1_SERVICE_NAME}
   spec:
+    # The label selector identifies all pods with the same
+    # label attached as its backing pods. This is the matching point.
+    selector:
+      server: 'service-1'
     ports:
     - name: client
       port: 2181
@@ -69,9 +73,6 @@ objects:
       port: 3888
       protocol: TCP
       targetPort: 3888
-    selector:
-      server-id: '1'
-
 - apiVersion: v1
   kind: DeploymentConfig
   metadata:
@@ -80,12 +81,12 @@ objects:
     name: ${ZK1_SERVICE_NAME}
   spec:
     replicas: 1
-    selector:
-      name: ${ZK1_SERVICE_NAME}
     template:
       metadata:
         labels:
           name: ${ZK1_SERVICE_NAME}
+          # this label connect this container with the service
+          server: 'service-1'
         name: ${ZK1_SERVICE_NAME}
       spec:
         containers:
@@ -102,10 +103,9 @@ objects:
             protocol: TCP
           - containerPort: 3888
             protocol: TCP
-          readinessProbe:
-            httpGet:
-              path: /metrics
-              port: 34545
+          livenessProbe:
+            tcpSocket:
+              port: 2181
             initialDelaySeconds: 15
             timeoutSeconds: 1
           imagePullPolicy: IfNotPresent
@@ -124,6 +124,9 @@ objects:
           - name: config-volume
             configMap:
               name: zk-1-config
+        # This output Pod only will run in Node labeled with:
+        nodeSelector:
+          server-id: '1'
     triggers:
     - type: "ConfigChange"
     - type: "ImageChange"
@@ -150,6 +153,10 @@ objects:
     labels:
       name: ${ZK2_SERVICE_NAME}
   spec:
+    # The label selector identifies all pods with the same
+    # label attached as its backing pods. This is the matching point.
+    selector:
+      server: 'service-2'
     ports:
     - name: client
       port: 2181
@@ -163,9 +170,6 @@ objects:
       port: 3888
       protocol: TCP
       targetPort: 3888
-    selector:
-      server-id: '2'
-
 - apiVersion: v1
   kind: DeploymentConfig
   metadata:
@@ -174,12 +178,12 @@ objects:
     name: ${ZK2_SERVICE_NAME}
   spec:
     replicas: 1
-    selector:
-      name: ${ZK2_SERVICE_NAME}
     template:
       metadata:
         labels:
           name: ${ZK2_SERVICE_NAME}
+          # this label connect this container with the service
+          server: 'service-2'
         name: ${ZK2_SERVICE_NAME}
       spec:
         containers:
@@ -196,10 +200,9 @@ objects:
             protocol: TCP
           - containerPort: 3888
             protocol: TCP
-          readinessProbe:
-            httpGet:
-              path: /metrics
-              port: 34545
+          livenessProbe:
+            tcpSocket:
+              port: 2181
             initialDelaySeconds: 15
             timeoutSeconds: 1
           imagePullPolicy: IfNotPresent
@@ -218,6 +221,9 @@ objects:
           - name: config-volume
             configMap:
               name: zk-2-config
+        # This output Pod only will run in Node labeled with:
+        nodeSelector:
+          server-id: '2'
     triggers:
     - type: "ConfigChange"
     - type: "ImageChange"
@@ -244,6 +250,10 @@ objects:
     labels:
       name: ${ZK3_SERVICE_NAME}
   spec:
+    # The label selector identifies all pods with the same
+    # label attached as its backing pods. This is the matching point.
+    selector:
+      server: 'service-3'
     ports:
     - name: client
       port: 2181
@@ -257,9 +267,6 @@ objects:
       port: 3888
       protocol: TCP
       targetPort: 3888
-    selector:
-      server-id: '3'
-
 - apiVersion: v1
   kind: DeploymentConfig
   metadata:
@@ -268,12 +275,12 @@ objects:
     name: ${ZK3_SERVICE_NAME}
   spec:
     replicas: 1
-    selector:
-      name: ${ZK3_SERVICE_NAME}
     template:
       metadata:
         labels:
           name: ${ZK3_SERVICE_NAME}
+          # this label connect this container with the service
+          server: 'service-3'
         name: ${ZK3_SERVICE_NAME}
       spec:
         containers:
@@ -290,10 +297,9 @@ objects:
             protocol: TCP
           - containerPort: 3888
             protocol: TCP
-          readinessProbe:
-            httpGet:
-              path: /metrics
-              port: 34545
+          livenessProbe:
+            tcpSocket:
+              port: 2181
             initialDelaySeconds: 15
             timeoutSeconds: 1
           imagePullPolicy: IfNotPresent
@@ -312,6 +318,9 @@ objects:
           - name: config-volume
             configMap:
               name: zk-3-config
+        # This output Pod only will run in Node labeled with:
+        nodeSelector:
+          server-id: '3'
     triggers:
     - type: "ConfigChange"
     - type: "ImageChange"
