@@ -9,7 +9,7 @@ FROM centos:7
 
 # Build-time vars
 ARG ZK_VERSION=3.4.8
-ARG ZK_MIRROR=http://www-eu.apache.org/dist/zookeeper/stable
+ARG ZK_MIRROR=http://www.apache.org/dist/zookeeper/zookeeper-${ZK_VERSION}
 
 # Custom metadata
 LABEL name="zookeeper" zookeeper-version=$ZK_VERSION
@@ -26,8 +26,8 @@ RUN \
 RUN \
   curl -L ${ZK_MIRROR}/zookeeper-${ZK_VERSION}.tar.gz -o /tmp/zookeeper-${ZK_VERSION}.tar.gz && \ 
   curl -L https://www.apache.org/dist/zookeeper/KEYS -o /tmp/KEYS && \ 
-  curl -L https://www.apache.org/dist/zookeeper/stable/zookeeper-${ZK_VERSION}.tar.gz.asc -o /tmp/zookeeper-${ZK_VERSION}.tar.gz.asc && \
-  curl -L https://www.apache.org/dist/zookeeper/stable/zookeeper-${ZK_VERSION}.tar.gz.md5 -o /tmp/zookeeper-${ZK_VERSION}.tar.gz.md5 
+  curl -L ${ZK_MIRROR}/zookeeper-${ZK_VERSION}.tar.gz.asc -o /tmp/zookeeper-${ZK_VERSION}.tar.gz.asc && \
+  curl -L ${ZK_MIRROR}/zookeeper-${ZK_VERSION}.tar.gz.md5 -o /tmp/zookeeper-${ZK_VERSION}.tar.gz.md5 
 
 # Verify download
 RUN \
@@ -47,13 +47,10 @@ RUN \
   chmod g+w /opt/zookeeper/conf && \
   rm -f /tmp/zookeeper-*
 
-# Configure
-COPY \
-  zoo-service.cfg /opt/zookeeper/conf/zoo.cfg 
-  
-COPY \
-  docker-entrypoint.sh /opt/zookeeper/
-
 EXPOSE 2181 2888 3888    
-  
+
+COPY \
+    docker-entrypoint.sh /opt/zookeeper/
+
 ENTRYPOINT ["/opt/zookeeper/docker-entrypoint.sh"]
+
