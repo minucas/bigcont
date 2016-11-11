@@ -115,9 +115,9 @@ designed to provide a highly available, fault tolerant environment for
 distributing your indexed content and query requests across multiple servers 
 (aka Solr Cluster). It's a system in which data is organized into multiple pieces,
 or shards, that can be hosted on multiple machines, with replicas providing 
-redundancy for both scalability and fault tolerance, and a **ZooKeeper server** 
-that helps manage the overall structure so that both indexing and search requests 
-can be routed properly.
+redundancy for both scalability and fault tolerance (so a replica is one copy of 
+a shard), and a **ZooKeeper server** that helps manage the overall structure 
+so that both indexing and search requests can be routed properly.
 
 The SolrCloud concept: A SolrCloud cluster consists of some "logical"
 concepts layered on top of some "physical" concepts.
@@ -126,7 +126,8 @@ concepts layered on top of some "physical" concepts.
 
     - A SolrCluster can host multiple Collections of Solr Documents.
     - A collection can be partitioned into multiple Shards, which contain a
-      subset of the Documents in the Collection.
+      subset of the Documents in the Collection. The collection is Logical
+      Index.
     - The number of Shards that a Collection has determines:
         - The theoretical limit to the number of Documents that Collection can
           reasonably contain.
@@ -187,6 +188,17 @@ to replicas in a coordinated fashion. Specifically:
  - Sends the update (in parallel) to all replicas of the shard, and blocks
    until a response is received.
 
+The concept of a leader is similar to that of master when thinking of
+traditional Solr replication. The leader is responsible for making sure the
+replicas are up to date with the same information stored in the leader.
+
+Note: Traditional Solr Replication - It is considered "legacy" behavior, since
+while it is still supported in Solr, the SolrCloud functionality is where 
+the current development is headed. In the traditional Solr replication, the index
+replication distributes complete copies of a master index to one or more slave
+servers. The master server continues to manage updates to the index. All
+querying is handled by the slaves.
+
 Any host per shard can be the leader, and all other hosts per shard are replicas. 
 As with replicas, leaders also participate in distributed queries.  Contrast this 
 with a master-slave setup in which master nodes only index, and slave nodes only 
@@ -197,6 +209,28 @@ to take it's place.
 It’s important to know that you really shouldn’t care which node in a shard is 
 the current leader and shouldn’t try to control it. SolrCloud was designed so 
 that any host for a shard could be the leader, and a new leader can be elected automatically.
+
+### Creating shards and replicas
+
+When creating a collection in SolrCloud we can adjust the creation command.
+Some of the parameters are mandatory, some of them have defaults and can be
+overwritten. The two main parameters we are interested in are the number of
+shards and the replication factor. The former tells Solr how to divide the
+collection – how many distinct pieces (shards) our collection will be split
+into. For example, if we say that we want to have four shards Solr will divide
+the collection into four pieces, with each piece having about 25% of the
+documents. The replication factor on the other hand dictates the number of
+physical copies that each shard will have. So, when replication factor is set
+to 1, only leader shards will be created. If replication factor is set to 2
+each leader will have one replica, if replication factor is set to 3 each
+leader will have two replicas and so on.
+
+By default, Solr will put one shard of a collection on a given node. If we want
+to have more shards than the number of nodes we have in the SolrCloud cluster,
+we need to adjust the behavior, which we also can do by using Collections API.
+Of course, Solr will try to spread the shards evenly around the cluster, but we
+can also adjust that behavior by telling Solr on which nodes shards should be
+created.
 
 ## Getting started with Solr
 
