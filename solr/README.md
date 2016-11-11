@@ -69,7 +69,7 @@ The number of potential field types is infinite because a field type is composed
 of zero or more analysis steps that change how the data in the field is processed
 and mapped into the **Solr index** (Solr index is underlayed by Lucene Inverted Index).
 
-An search index is similar to a databse index: is a data structure that
+A search index is similar to a databse index: is a data structure that
 improves the speed of data retrieval operations.
 
 Each field in a document is defined in **Solr’s schema** as a particular field type, 
@@ -98,7 +98,7 @@ containing one or more fields.
 
 ## Searching at scale: Distributed searching
 
-In order to run queries at scale, we need more than one huger server, we need
+In order to run queries at scale, we need more than one single huge server, we need
 scale-up the engine into separated severs.
 
 It’s necessary to break your content into two or more separate Solr indexes, each 
@@ -118,6 +118,39 @@ or shards, that can be hosted on multiple machines, with replicas providing
 redundancy for both scalability and fault tolerance, and a **ZooKeeper server** 
 that helps manage the overall structure so that both indexing and search requests 
 can be routed properly.
+
+The SolrCloud concept: A SolrCloud cluster consists of some "logical"
+concepts layered on top of some "physical" concepts.
+
+ 1. Logical:
+
+    - A SolrCluster can host multiple Collections of Solr Documents.
+    - A collection can be partitioned into multiple Shards, which contain a
+      subset of the Documents in the Collection.
+    - The number of Shards that a Collection has determines:
+        - The theoretical limit to the number of Documents that Collection can
+          reasonably contain.
+        - The amount of parallelization that is possible for an individual
+          search request.
+
+ 2. Physical:
+
+    - A Cluster is made up of one or more Solr Nodes, which are running
+      instances of the Solr server process. In SolrCloud, a node is Java
+      Virtual Machine instance running Solr, commonly called a server.  
+    - A cluster is set of Solr nodes managed by ZooKeeper as a single unit.
+    - Each Node can host multiple Solr Cores: A Solr core is basically an index
+      of the text and fields found in documents. A single Solr instance can
+      contain multiple "cores".
+    - Each Core in a Cluster is a physical Replica for a logical Shard.
+    - Every Replica uses the same configuration specified for the Collection
+      that it is a part of.
+    - The number of Replicas that each Shard has determines:
+        - The level of redundancy built into the Collection and how fault
+          tolerant the Cluster can be in the event that some Nodes become
+          unavailable.
+        - The theoretical limit in the number concurrent search requests that
+          can be processed under heavy load.
 
 In SolrCloud mode you to create multiple search indexes, each of which is 
 represented by a Solr core. A Solr core is a uniquely named, managed, and 
@@ -146,6 +179,24 @@ systems. Solr uses ZooKeeper for three critical operations:
  - Detection and notification when the cluster state changes
  - Shard-leader election
 
+Shard leader: A shard leader is responsible for accepting update requests
+(document additions or deletions) for the shard handled and distributing them 
+to replicas in a coordinated fashion. Specifically:
+
+ - Accepts update requests for the shard: responsible of shard handled.
+ - Sends the update (in parallel) to all replicas of the shard, and blocks
+   until a response is received.
+
+Any host per shard can be the leader, and all other hosts per shard are replicas. 
+As with replicas, leaders also participate in distributed queries.  Contrast this 
+with a master-slave setup in which master nodes only index, and slave nodes only 
+respond to queries. In SolrCloud, both leaders and replicas perform indexing and execute queries.
+If the current Shard Leader goes down, a new node will automatically be elected 
+to take it's place.
+
+It’s important to know that you really shouldn’t care which node in a shard is 
+the current leader and shouldn’t try to control it. SolrCloud was designed so 
+that any host for a shard could be the leader, and a new leader can be elected automatically.
 
 ## Getting started with Solr
 
