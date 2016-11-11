@@ -69,7 +69,7 @@ The number of potential field types is infinite because a field type is composed
 of zero or more analysis steps that change how the data in the field is processed
 and mapped into the **Solr index** (Solr index is underlayed by Lucene Inverted Index).
 
-An search index is similar to a databse index: is a data structure that
+A search index is similar to a databse index: is a data structure that
 improves the speed of data retrieval operations.
 
 Each field in a document is defined in **Solr’s schema** as a particular field type, 
@@ -98,7 +98,7 @@ containing one or more fields.
 
 ## Searching at scale: Distributed searching
 
-In order to run queries at scale, we need more than one huger server, we need
+In order to run queries at scale, we need more than one single huge server, we need
 scale-up the engine into separated severs.
 
 It’s necessary to break your content into two or more separate Solr indexes, each 
@@ -115,9 +115,43 @@ designed to provide a highly available, fault tolerant environment for
 distributing your indexed content and query requests across multiple servers 
 (aka Solr Cluster). It's a system in which data is organized into multiple pieces,
 or shards, that can be hosted on multiple machines, with replicas providing 
-redundancy for both scalability and fault tolerance, and a **ZooKeeper server** 
-that helps manage the overall structure so that both indexing and search requests 
-can be routed properly.
+redundancy for both scalability and fault tolerance (so a replica is one copy of 
+a shard), and a **ZooKeeper server** that helps manage the overall structure 
+so that both indexing and search requests can be routed properly.
+
+The SolrCloud concept: A SolrCloud cluster consists of some "logical"
+concepts layered on top of some "physical" concepts.
+
+ 1. Logical:
+
+    - A SolrCluster can host multiple Collections of Solr Documents.
+    - A collection can be partitioned into multiple Shards, which contain a
+      subset of the Documents in the Collection. The collection is Logical
+      Index.
+    - The number of Shards that a Collection has determines:
+        - The theoretical limit to the number of Documents that Collection can
+          reasonably contain.
+        - The amount of parallelization that is possible for an individual
+          search request.
+
+ 2. Physical:
+
+    - A Cluster is made up of one or more Solr Nodes, which are running
+      instances of the Solr server process. In SolrCloud, a node is Java
+      Virtual Machine instance running Solr, commonly called a server.  
+    - A cluster is set of Solr nodes managed by ZooKeeper as a single unit.
+    - Each Node can host multiple Solr Cores: A Solr core is basically an index
+      of the text and fields found in documents. A single Solr instance can
+      contain multiple "cores".
+    - Each Core in a Cluster is a physical Replica for a logical Shard.
+    - Every Replica uses the same configuration specified for the Collection
+      that it is a part of.
+    - The number of Replicas that each Shard has determines:
+        - The level of redundancy built into the Collection and how fault
+          tolerant the Cluster can be in the event that some Nodes become
+          unavailable.
+        - The theoretical limit in the number concurrent search requests that
+          can be processed under heavy load.
 
 In SolrCloud mode you to create multiple search indexes, each of which is 
 represented by a Solr core. A Solr core is a uniquely named, managed, and 
@@ -146,6 +180,57 @@ systems. Solr uses ZooKeeper for three critical operations:
  - Detection and notification when the cluster state changes
  - Shard-leader election
 
+Shard leader: A shard leader is responsible for accepting update requests
+(document additions or deletions) for the shard handled and distributing them 
+to replicas in a coordinated fashion. Specifically:
+
+ - Accepts update requests for the shard: responsible of shard handled.
+ - Sends the update (in parallel) to all replicas of the shard, and blocks
+   until a response is received.
+
+The concept of a leader is similar to that of master when thinking of
+traditional Solr replication. The leader is responsible for making sure the
+replicas are up to date with the same information stored in the leader.
+
+Note: Traditional Solr Replication - It is considered "legacy" behavior, since
+while it is still supported in Solr, the SolrCloud functionality is where 
+the current development is headed. In the traditional Solr replication, the index
+replication distributes complete copies of a master index to one or more slave
+servers. The master server continues to manage updates to the index. All
+querying is handled by the slaves.
+
+Any host per shard can be the leader, and all other hosts per shard are replicas. 
+As with replicas, leaders also participate in distributed queries.  Contrast this 
+with a master-slave setup in which master nodes only index, and slave nodes only 
+respond to queries. In SolrCloud, both leaders and replicas perform indexing and execute queries.
+If the current Shard Leader goes down, a new node will automatically be elected 
+to take it's place.
+
+It’s important to know that you really shouldn’t care which node in a shard is 
+the current leader and shouldn’t try to control it. SolrCloud was designed so 
+that any host for a shard could be the leader, and a new leader can be elected automatically.
+
+### Creating shards and replicas
+
+When creating a collection in SolrCloud we can adjust the creation command.
+Some of the parameters are mandatory, some of them have defaults and can be
+overwritten. The two main parameters we are interested in are the number of
+shards and the replication factor. The former tells Solr how to divide the
+collection – how many distinct pieces (shards) our collection will be split
+into. For example, if we say that we want to have four shards Solr will divide
+the collection into four pieces, with each piece having about 25% of the
+documents. The replication factor on the other hand dictates the number of
+physical copies that each shard will have. So, when replication factor is set
+to 1, only leader shards will be created. If replication factor is set to 2
+each leader will have one replica, if replication factor is set to 3 each
+leader will have two replicas and so on.
+
+By default, Solr will put one shard of a collection on a given node. If we want
+to have more shards than the number of nodes we have in the SolrCloud cluster,
+we need to adjust the behavior, which we also can do by using Collections API.
+Of course, Solr will try to spread the shards evenly around the cluster, but we
+can also adjust that behavior by telling Solr on which nodes shards should be
+created.
 
 ## Getting started with Solr
 
