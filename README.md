@@ -77,16 +77,11 @@ The table is based on the following workflow:
 
 | Tool | Overview | Docker | OpenShift manually | Template |
 | :--  |:--------:|:------:|:------------------:|:--------:|
-<<<<<<< HEAD
-|[Apache Flume](flume/README.md)| Done | Done | Done | TODO |
-|[Apache Zookeeper](zookeeper/README.md)| Done | Done | Done | TODO |
+|[Apache Flume](flume/README.md)| Done | Done | Done | Done |
+|[Apache Zookeeper](zookeeper/README.md)| Done | Done | Done | Done |
 |[Apache Solr](solr/README.md)| Done | TODO | TODO | TODO |
 |[Banana Fusion](banana/README.md)| Done | TODO | TODO | TODO |
 |[Apache Kafka](kafka/README.md)| Done | TODO | TODO | TODO |
-=======
-|[Apache Flume](flume/README.md)| Done | Done | Done | Done |
-|[Apache Zookeeper](zookeeper/README.md)| Done | Done | Done | Done |
->>>>>>> master
 |[MongoDB](mongodb/README.md)| Done | Done | TODO | TODO |
 |[TensorFlow](tensorflow/README.md)| Done | TODO | TODO | TODO |
 |[LogStash](logstash/README.md)| Done | TODO | TODO | TODO |
