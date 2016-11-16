@@ -47,18 +47,21 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     config.vm.define "#{vm_name}" do |node|
       node.vm.hostname = "#{vm_name}"
       #node.vm.network :private_network, ip: "10.10.10.10#{i}", auto_config: false 
-      config.vm.provider :libvirt do |domain|
+      node.vm.provider :libvirt do |domain|
         domain.uri = 'qemu+unix:///system'
         domain.driver = 'kvm'
         domain.memory = "#{vm_memory}".to_i
         domain.cpus = 1
-        # workers nodes simulate JBOD disk arrays (infra node excluded)
-        # Issue: https://github.com/vagrant-libvirt/vagrant-libvirt/issues/651
         if "#{vm_name}" == "node2" || 
            "#{vm_name}" == "node3" || 
            "#{vm_name}" == "node4"
+            # disk for Docker backend storage
+            domain.storage :file, :size => '10G'
+            # disks for JBOD
             domain.storage :file, :size => '10G'
             domain.storage :file, :size => '10G'
+        elsif "#{vm_name}" == "node1"
+            # disk for Docker backend storage in infra node
             domain.storage :file, :size => '10G'
         end
       end

@@ -1,0 +1,28 @@
+-start a new deployment manually
+
+oc deploy --latest dc/router
+
+-  To get basic information about recent deployments:
+
+oc rollout history dc/router
+
+- You can view details specific to a revision by using:
+
+oc rollout history dc/router --revision=1
+
+- To cancel a running or stuck deployment:
+
+oc deploy --cancel dc/router
+
+- To retry the last failed deployment:
+
+oc deploy --retry dc/router
+
+- To rollback to the last successful deployed revision :
+
+oc rollout undo dc/router
+
+- To rollback to well know successful deployment:
+
+oc rollout undo dc/router --to-revision=1
+

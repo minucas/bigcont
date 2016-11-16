@@ -1,0 +1,3 @@
+OpenShift
+
+https://salaboy.com/2016/03/21/high-availability-drools-stateless-service-in-openshift-origin/

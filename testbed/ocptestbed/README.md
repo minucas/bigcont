@@ -12,8 +12,7 @@ $ vagrant plugin list
 vagrant-libvirt (0.0.35)
 
 $ source env-setup
-$ sh vagrant-up.sh
-$ vagrant status
+$ vagrant up
 
 Current machine states:
 

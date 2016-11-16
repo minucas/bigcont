@@ -1,0 +1,361 @@
+apiVersion: v1
+kind: Template
+labels:
+  application: zookeeperapp
+  createdby: zookeeper-quorum-template
+message: This is a simple Apache Zookeeper template for testing
+metadata:
+  annotations:
+    description: 'Apache Zookeeper Quorum Template'
+    tags: bigdata,zookeeper-test
+  name: zookeeper-quorum
+#
+# Objects created by this template
+#
+objects:
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    annotations:
+      description: Keeps track of changes in the application image
+    name: "zookeeper-service"
+
+- apiVersion: v1
+  kind: BuildConfig
+  metadata:
+    annotations:
+      description: Defines how to build the application
+    name: zookeeper-build
+  spec:
+    source:
+      type: "Git"
+      git:
+        uri: "https://github.com/bigcontainer/bigcont"
+        ref: "zookeeper-service"
+      contextDir: "zookeeper/template"
+    strategy:
+      type: Docker
+      dockerStrategy:
+        dockerfilePath: "Dockerfile"
+    output:
+      to:
+        kind: "ImageStreamTag" 
+        name: ${ZK_IMAGE_STREAM_TAG}
+    triggers:
+      - type: "ImageChange"
+      - type: "ConfigChange"
+#
+# ZK-1 Service
+#
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: ${ZK1_SERVICE_NAME}
+    annotations:
+      description: Exposes and load balances the application pods
+    labels:
+      name: ${ZK1_SERVICE_NAME}
+  spec:
+    # The label selector identifies all pods with the same
+    # label attached as its backing pods. This is the matching point.
+    selector:
+      server: 'service-1'
+    ports:
+    - name: client
+      port: 2181
+      protocol: TCP
+      targetPort: 2181
+    - name: followers
+      port: 2888
+      protocol: TCP
+      targetPort: 2888
+    - name: election
+      port: 3888
+      protocol: TCP
+      targetPort: 3888
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    annotations:
+      description: Defines how to deploy the application server
+    name: ${ZK1_SERVICE_NAME}
+  spec:
+    replicas: 1
+    template:
+      metadata:
+        labels:
+          name: ${ZK1_SERVICE_NAME}
+          # this label connect this container with the service
+          server: 'service-1'
+        name: ${ZK1_SERVICE_NAME}
+      spec:
+        containers:
+        - image: 'zookeeper-service'
+          name: "zk-service-1"
+          env:
+          - name: ZOOCFGDIR
+            value: '/opt/conf'
+          command: ["/opt/zookeeper/docker-entrypoint.sh"]
+          ports: 
+          - containerPort: 2181
+            protocol: TCP
+          - containerPort: 2888
+            protocol: TCP
+          - containerPort: 3888
+            protocol: TCP
+          livenessProbe:
+            tcpSocket:
+              port: 2181
+            initialDelaySeconds: 15
+            timeoutSeconds: 1
+          imagePullPolicy: IfNotPresent
+          resources:
+            limits:
+              memory: ${MEMORY_LIMIT}
+          volumeMounts:
+          - name: config-volume
+            mountPath: /opt/conf/
+          - name: data-volume
+            mountPath: /opt/zookeeper-data
+        volumes:
+          - name: data-volume
+            configMap:
+              name: zk-1-config
+          - name: config-volume
+            configMap:
+              name: zk-1-config
+        # This output Pod only will run in Node labeled with:
+        nodeSelector:
+          server-id: '1'
+    triggers:
+    - type: "ConfigChange"
+    - type: "ImageChange"
+      imageChangeParams:
+        automatic: true
+        containerNames:
+          - "zk-service-1"
+        from:
+          kind: ImageStreamTag
+          name: ${ZK_IMAGE_STREAM_TAG}
+    strategy:
+      type: Recreate
+    paused: false
+    revisionHistoryLimit: 2
+#
+# ZK-2 Service
+#
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: ${ZK2_SERVICE_NAME}
+    annotations:
+      description: Exposes and load balances the application pods
+    labels:
+      name: ${ZK2_SERVICE_NAME}
+  spec:
+    # The label selector identifies all pods with the same
+    # label attached as its backing pods. This is the matching point.
+    selector:
+      server: 'service-2'
+    ports:
+    - name: client
+      port: 2181
+      protocol: TCP
+      targetPort: 2181
+    - name: followers
+      port: 2888
+      protocol: TCP
+      targetPort: 2888
+    - name: election
+      port: 3888
+      protocol: TCP
+      targetPort: 3888
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    annotations:
+      description: Defines how to deploy the application server
+    name: ${ZK2_SERVICE_NAME}
+  spec:
+    replicas: 1
+    template:
+      metadata:
+        labels:
+          name: ${ZK2_SERVICE_NAME}
+          # this label connect this container with the service
+          server: 'service-2'
+        name: ${ZK2_SERVICE_NAME}
+      spec:
+        containers:
+        - image: 'zookeeper-service'
+          name: "zk-service-2"
+          env:
+          - name: ZOOCFGDIR
+            value: '/opt/conf'
+          command: ["/opt/zookeeper/bin/zkServer.sh", "start-foreground"]
+          ports: 
+          - containerPort: 2181
+            protocol: TCP
+          - containerPort: 2888
+            protocol: TCP
+          - containerPort: 3888
+            protocol: TCP
+          livenessProbe:
+            tcpSocket:
+              port: 2181
+            initialDelaySeconds: 15
+            timeoutSeconds: 1
+          imagePullPolicy: IfNotPresent
+          resources:
+            limits:
+              memory: ${MEMORY_LIMIT}
+          volumeMounts:
+          - name: config-volume
+            mountPath: /opt/conf/
+          - name: data-volume
+            mountPath: /opt/zookeeper-data
+        volumes:
+          - name: data-volume
+            configMap:
+              name: zk-2-config
+          - name: config-volume
+            configMap:
+              name: zk-2-config
+        # This output Pod only will run in Node labeled with:
+        nodeSelector:
+          server-id: '2'
+    triggers:
+    - type: "ConfigChange"
+    - type: "ImageChange"
+      imageChangeParams:
+        automatic: true
+        containerNames:
+          - "zk-service-2"
+        from:
+          kind: ImageStreamTag
+          name: ${ZK_IMAGE_STREAM_TAG}
+    strategy:
+      type: Recreate
+    paused: false
+    revisionHistoryLimit: 2
+#
+# ZK-3 Service
+#
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: ${ZK3_SERVICE_NAME}
+    annotations:
+      description: Exposes and load balances the application pods
+    labels:
+      name: ${ZK3_SERVICE_NAME}
+  spec:
+    # The label selector identifies all pods with the same
+    # label attached as its backing pods. This is the matching point.
+    selector:
+      server: 'service-3'
+    ports:
+    - name: client
+      port: 2181
+      protocol: TCP
+      targetPort: 2181
+    - name: followers
+      port: 2888
+      protocol: TCP
+      targetPort: 2888
+    - name: election
+      port: 3888
+      protocol: TCP
+      targetPort: 3888
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    annotations:
+      description: Defines how to deploy the application server
+    name: ${ZK3_SERVICE_NAME}
+  spec:
+    replicas: 1
+    template:
+      metadata:
+        labels:
+          name: ${ZK3_SERVICE_NAME}
+          # this label connect this container with the service
+          server: 'service-3'
+        name: ${ZK3_SERVICE_NAME}
+      spec:
+        containers:
+        - image: 'zookeeper-service'
+          name: "zk-service-3"
+          env:
+          - name: ZOOCFGDIR
+            value: '/opt/conf'
+          command: ["/opt/zookeeper/bin/zkServer.sh", "start-foreground"]
+          ports: 
+          - containerPort: 2181
+            protocol: TCP
+          - containerPort: 2888
+            protocol: TCP
+          - containerPort: 3888
+            protocol: TCP
+          livenessProbe:
+            tcpSocket:
+              port: 2181
+            initialDelaySeconds: 15
+            timeoutSeconds: 1
+          imagePullPolicy: IfNotPresent
+          resources:
+            limits:
+              memory: ${MEMORY_LIMIT}
+          volumeMounts:
+          - name: config-volume
+            mountPath: /opt/conf/
+          - name: data-volume
+            mountPath: /opt/zookeeper-data
+        volumes:
+          - name: data-volume
+            configMap:
+              name: zk-3-config
+          - name: config-volume
+            configMap:
+              name: zk-3-config
+        # This output Pod only will run in Node labeled with:
+        nodeSelector:
+          server-id: '3'
+    triggers:
+    - type: "ConfigChange"
+    - type: "ImageChange"
+      imageChangeParams:
+        automatic: true
+        containerNames:
+          - "zk-service-3"
+        from:
+          kind: ImageStreamTag
+          name: ${ZK_IMAGE_STREAM_TAG}
+    strategy:
+      type: Recreate
+    paused: false
+    revisionHistoryLimit: 2
+#
+# Posible Template parameters to override
+#
+parameters:
+- description: The name of the OpenShift Service exposed for Zookeeper Server-1
+  displayName: Apache Zookeeper Service Name
+  name: ZK1_SERVICE_NAME
+  value: "zookeeper-1"
+- description: The name of the OpenShift Service exposed for Zookeeper Server-2
+  displayName: Apache Zookeeper Service Name
+  name: ZK2_SERVICE_NAME
+  value: "zookeeper-2"
+- description: The name of the OpenShift Service exposed for Zookeeper Server-3
+  displayName: Apache Zookeeper Service Name
+  name: ZK3_SERVICE_NAME
+  value: "zookeeper-3"
+- description: Maximum amount of memory the container can use.
+  displayName: Memory Limit
+  name: MEMORY_LIMIT
+  value: "512Mi"
+- description: Name of the ImageStreamTag to be used for the Apache Zookeeper image.
+  displayName: Apache Zookeeper ImageStreamTag
+  name: ZK_IMAGE_STREAM_TAG
+  value: "zookeeper-service:latest"
