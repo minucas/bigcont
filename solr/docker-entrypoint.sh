@@ -9,7 +9,7 @@ if [[ "$VERBOSE" = "yes" ]]; then
     set -x
 fi
 
-INIT_LOG=${INIT_LOG:-/opt/docker-solr/init.log}
+INIT_LOG=${INIT_LOG:-/opt/docker/init.log}
 
 # configure Solr to run on the local interface, and start it running in the background
 function initial_solr_begin {
@@ -20,7 +20,7 @@ function initial_solr_begin {
     /opt/solr/bin/solr start
     max_try=${MAX_TRY:-12}
     wait_seconds=${WAIT_SECONDS:-5}
-    if ! /opt/docker-solr/scripts/wait-for-solr.sh "$max_try" "$wait_seconds"; then
+    if ! /opt/docker/scripts/wait-for-solr.sh "$max_try" "$wait_seconds"; then
         echo "Could not start Solr."
         if [ -f /opt/solr/server/logs/solr.log ]; then
             echo "Here is the log:"
@@ -66,7 +66,7 @@ elif [[ "$1" = 'solr-create' ]]; then
     #      docker run -it --rm -P -v $PWD/mycores:/opt/solr/server/solr/mycores solr solr-create -c mycore
     echo "Executing $1 command"
     init_actions
-    sentinel=/opt/docker-solr/core_created
+    sentinel=/opt/docker/core_created
     if [ -f $sentinel ]; then
         echo "skipping core creation"
     else
