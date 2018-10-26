@@ -35,12 +35,12 @@ RUN \
   rm -f /tmp/apache-flume-* && \
   rm -f /tmp/KEYS
 
-ADD files/generic.conf /opt/flume/generic.conf
+# ADD files/generic.conf /opt/flume/generic.conf
 
-EXPOSE 1234
-EXPOSE 34545
+# EXPOSE 1234
+# EXPOSE 34545
 
 WORKDIR /opt/flume 
 
-ENTRYPOINT ["bin/flume-ng", "agent"]
-CMD ["-n", "agent", "-c", "conf", "-f", "generic.conf", "-Dflume.root.logger=INFO,console", "-Dflume.monitoring.type=http", "-Dflume.monitoring.port=34545"]
+# ENTRYPOINT ["bin/flume-ng", "agent"]
+# CMD ["-n", "agent", "-c", "conf", "-f", "generic.conf", "-Dflume.root.logger=INFO,console", "-Dflume.monitoring.type=http", "-Dflume.monitoring.port=34545"]
